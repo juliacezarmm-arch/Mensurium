@@ -997,11 +997,16 @@
 
     .official-table-view {
       min-width: 1450px;
-      padding: 18px 14px 36px;
+      padding: 0 14px 36px;
       background:
         linear-gradient(#e2e6eb 1px, transparent 1px) 0 0 / 100% 21px,
         linear-gradient(90deg, #e2e6eb 1px, transparent 1px) 0 0 / 88px 100%,
         #fff;
+    }
+
+    .official-table-view .official-head,
+    .official-table-view .official-metrics {
+      display: none;
     }
 
     .official-head {
@@ -1095,10 +1100,23 @@
 
     .official-grid {
       display: grid;
-      grid-template-columns: 42px 1428px;
+      grid-template-columns: 42px 1056px;
       grid-template-rows: 22px auto;
-      width: 1470px;
+      width: 1098px;
+      min-height: 1382px;
       background: #fff;
+    }
+
+    .official-grid::after {
+      content: "";
+      grid-column: 2;
+      grid-row: 2;
+      width: 1056px;
+      height: 1360px;
+      background:
+        linear-gradient(#e2e6eb 1px, transparent 1px) 0 0 / 100% 17px,
+        linear-gradient(90deg, #e2e6eb 1px, transparent 1px) 0 0 / 88px 100%,
+        #fff;
     }
 
     .official-ruler-corner,
@@ -1123,7 +1141,7 @@
       grid-column: 2;
       grid-row: 1;
       display: grid;
-      grid-template-columns: 110px 530px 74px 88px 88px 88px 80px 88px 88px 62px 74px 56px;
+      grid-template-columns: repeat(12, 88px);
     }
 
     .official-row-ruler {
@@ -1134,31 +1152,36 @@
     }
 
     .official-row-ruler span:first-child {
-      height: 34px;
-      grid-row: span 2;
+      height: 17px;
+      grid-row: auto;
     }
 
     .official-table-shell {
       grid-column: 2;
       grid-row: 2;
+      display: none;
     }
 
     .official-table {
       width: 1428px;
       border-collapse: collapse;
       table-layout: fixed;
-      border: 2px solid #111;
+      border: 0;
       font-size: 12px;
     }
 
     .official-table th,
     .official-table td {
       height: 17px;
-      border: 1px solid #111;
+      border: 1px solid #e2e6eb;
       padding: 1px 5px;
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
+    }
+
+    .official-table thead {
+      display: none;
     }
 
     .official-table th {
@@ -2397,6 +2420,21 @@
       ["sim", "Sim"]
     ];
 
+    const budgetColumns = [
+      "level",
+      "bdi",
+      "item",
+      "service",
+      "unit",
+      "quantity",
+      "price",
+      "total",
+      "code",
+      "source",
+      "observation",
+      "check"
+    ];
+
     const catalog = {
       "CDHU|01.01.001": { descricao: "Administração local da obra", unidade: "mês", preco: 12500 },
       "CDHU|02.01.010": { descricao: "Tapume em chapa de madeira compensada", unidade: "m²", preco: 138.42 },
@@ -2420,6 +2458,7 @@
     let undoStack = [];
     let redoStack = [];
     let internalClipboardText = "";
+    let lastNativePasteAt = 0;
     let autosaveEnabled = localStorage.getItem(AUTOSAVE_KEY) !== "off";
     let officialSources = loadOfficialSources();
     let activeTabArea = "documents";
@@ -2559,6 +2598,14 @@
     }
 
     function renderOfficialTable() {
+      const blankRowCount = 80;
+      officialRowRuler.innerHTML = Array.from({ length: blankRowCount }, (_, index) => (
+        `<span>${index + 1}</span>`
+      )).join("");
+
+      officialTableBody.innerHTML = "";
+      return;
+
       const source = activeTabLabel || "CDHU";
       officialLogoText.textContent = source === "CDHU" ? "CDHU" : source;
       officialMainTitle.textContent = source === "CDHU"
@@ -3235,6 +3282,228 @@
       return document.activeElement?.closest?.("[data-field]") || null;
     }
 
+    function normalizeComparable(value) {
+      return String(value ?? "")
+        .trim()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/\s+/g, " ");
+    }
+
+    function normalizeLevelValue(value) {
+      const text = normalizeComparable(value);
+      const map = {
+        "": "",
+        "secao": "section",
+        "sessao": "section",
+        "macro": "macro",
+        "macro item": "macro",
+        "macroitem": "macro",
+        "item": "item",
+        "sub item": "subitem",
+        "subitem": "subitem",
+        "servico": "service",
+        "subtotal": "subtotal",
+        "subtotal da secao": "sectionTotal",
+        "subtotal da sessao": "sectionTotal"
+      };
+      return Object.prototype.hasOwnProperty.call(map, text) ? map[text] : null;
+    }
+
+    function normalizeClipboardValue(field, value) {
+      const raw = String(value ?? "").trim();
+      if (field === "level") {
+        const mapped = normalizeLevelValue(raw);
+        return mapped === null ? raw : mapped;
+      }
+      if (field === "bdi") {
+        return normalizeBdiValue(normalizeComparable(raw) === "sim" ? "sim" : raw);
+      }
+      return String(value ?? "");
+    }
+
+    function getSelectionBounds(selection = cellSelection) {
+      if (!selection) return null;
+      return {
+        minRow: Math.min(selection.start.row, selection.end.row),
+        maxRow: Math.max(selection.start.row, selection.end.row),
+        minCol: Math.min(selection.start.col, selection.end.col),
+        maxCol: Math.max(selection.start.col, selection.end.col)
+      };
+    }
+
+    function hasMultiCellSelection() {
+      const bounds = getSelectionBounds();
+      return !!bounds && (bounds.minRow !== bounds.maxRow || bounds.minCol !== bounds.maxCol);
+    }
+
+    function getCellControl(rowIndex, colIndex) {
+      return body.querySelector(`tr[data-index="${rowIndex}"] td[data-col="${colIndex}"] .cell-control`);
+    }
+
+    function getCellDisplayValue(rowIndex, colIndex) {
+      const control = getCellControl(rowIndex, colIndex);
+      if (control) return control.value ?? "";
+      const field = budgetColumns[colIndex];
+      return field ? rows[rowIndex]?.[field] ?? "" : "";
+    }
+
+    function selectedCellsToText(bounds) {
+      const lines = [];
+      for (let rowIndex = bounds.minRow; rowIndex <= bounds.maxRow; rowIndex += 1) {
+        const cells = [];
+        for (let colIndex = bounds.minCol; colIndex <= bounds.maxCol; colIndex += 1) {
+          cells.push(getCellDisplayValue(rowIndex, colIndex));
+        }
+        lines.push(cells.join("\t"));
+      }
+      return lines.join("\n");
+    }
+
+    function parseClipboardMatrix(text) {
+      const normalized = String(text ?? "").replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+      const trimmedFinalBreak = normalized.endsWith("\n") ? normalized.slice(0, -1) : normalized;
+      return trimmedFinalBreak.split("\n").map((line) => line.split("\t"));
+    }
+
+    function canPasteField(row, field) {
+      if (!field || ["item", "total", "check"].includes(field)) return false;
+      if (["level", "bdi", "observation"].includes(field)) return true;
+      if (field === "service") return !!row.level && !isCalculated(row);
+      if (["unit", "quantity", "price", "code", "source"].includes(field)) return isService(row);
+      return false;
+    }
+
+    function applyCellSideEffects(rowIndex, field) {
+      const row = rows[rowIndex];
+      if (!row || field !== "level") return;
+      if (!row.level || row.level === "service") {
+        row.service = "";
+      } else if (!row.service) {
+        row.service = "Digite a Descrição";
+      }
+    }
+
+    function setCellByCoords(rowIndex, colIndex, value) {
+      if (!rows[rowIndex]) return false;
+      const control = getCellControl(rowIndex, colIndex);
+      const field = control?.dataset?.field || budgetColumns[colIndex];
+      if (!canPasteField(rows[rowIndex], field)) return false;
+      const nextValue = normalizeClipboardValue(field, value);
+      rows[rowIndex][field] = nextValue;
+      if (control && "value" in control) control.value = nextValue;
+      applyCellSideEffects(rowIndex, field);
+      return true;
+    }
+
+    function copySelectedCells() {
+      const activeControl = getActiveControl();
+      const activeCoords = getCellCoordsFromElement(activeControl);
+      const bounds = getSelectionBounds() || (activeCoords ? {
+        minRow: activeCoords.row,
+        maxRow: activeCoords.row,
+        minCol: activeCoords.col,
+        maxCol: activeCoords.col
+      } : null);
+
+      if (!bounds) {
+        copyRow();
+        return;
+      }
+
+      writeClipboardText(selectedCellsToText(bounds));
+      showToast(hasMultiCellSelection() ? "Células copiadas." : "Célula copiada.");
+    }
+
+    function pasteClipboardText(text, activeControl = getActiveControl()) {
+      if (text === undefined || text === null) return;
+      const matrix = parseClipboardMatrix(text);
+      const activeCoords = getCellCoordsFromElement(activeControl);
+      const bounds = getSelectionBounds() || (activeCoords ? {
+        minRow: activeCoords.row,
+        maxRow: activeCoords.row,
+        minCol: activeCoords.col,
+        maxCol: activeCoords.col
+      } : null);
+
+      if (!bounds) {
+        showToast("Selecione a célula inicial para colar.");
+        return;
+      }
+
+      const oneValue = matrix.length === 1 && matrix[0].length === 1;
+      const matrixRows = oneValue ? (bounds.maxRow - bounds.minRow + 1) : matrix.length;
+      const matrixCols = oneValue
+        ? (bounds.maxCol - bounds.minCol + 1)
+        : Math.max(...matrix.map((line) => line.length));
+
+      pushUndo();
+      while (rows.length < bounds.minRow + matrixRows) {
+        rows.push(createRow());
+      }
+
+      let changed = 0;
+      for (let rowOffset = 0; rowOffset < matrixRows; rowOffset += 1) {
+        for (let colOffset = 0; colOffset < matrixCols; colOffset += 1) {
+          const sourceRow = oneValue ? 0 : rowOffset;
+          const sourceCol = oneValue ? 0 : colOffset;
+          const value = matrix[sourceRow]?.[sourceCol] ?? "";
+          if (setCellByCoords(bounds.minRow + rowOffset, bounds.minCol + colOffset, value)) {
+            changed += 1;
+          }
+        }
+      }
+
+      if (!changed) {
+        undoStack.pop();
+        showToast("Nenhuma célula editável para colar.");
+        return;
+      }
+
+      const end = {
+        row: Math.min(rows.length - 1, bounds.minRow + matrixRows - 1),
+        col: Math.min(budgetColumns.length - 1, bounds.minCol + matrixCols - 1)
+      };
+      cellSelection = { start: { row: bounds.minRow, col: bounds.minCol }, end };
+      selectedIndex = end.row;
+      render();
+      scheduleAutoSave();
+      showToast(changed > 1 ? "Células coladas." : "Célula colada.");
+    }
+
+    function pasteFromClipboard() {
+      readClipboardText().then((text) => pasteClipboardText(text));
+    }
+
+    function clearSelectedCells() {
+      const activeCoords = getCellCoordsFromElement(getActiveControl());
+      const bounds = getSelectionBounds() || (activeCoords ? {
+        minRow: activeCoords.row,
+        maxRow: activeCoords.row,
+        minCol: activeCoords.col,
+        maxCol: activeCoords.col
+      } : null);
+      if (!bounds) {
+        clearRow();
+        return;
+      }
+
+      pushUndo();
+      let changed = 0;
+      for (let rowIndex = bounds.minRow; rowIndex <= bounds.maxRow; rowIndex += 1) {
+        for (let colIndex = bounds.minCol; colIndex <= bounds.maxCol; colIndex += 1) {
+          if (setCellByCoords(rowIndex, colIndex, "")) changed += 1;
+        }
+      }
+      if (!changed) {
+        undoStack.pop();
+        return;
+      }
+      render();
+      scheduleAutoSave();
+    }
+
     function columnName(index) {
       let name = "";
       let number = index + 1;
@@ -3694,8 +3963,8 @@
         "delete": deleteRow,
         "duplicate": duplicateRow,
         "clear": clearRow,
-        "copy": copyRow,
-        "paste": pasteRow,
+        "copy": copySelectedCells,
+        "paste": pasteFromClipboard,
         "undo": undo,
         "redo": redo,
         "toggle-level": () => { hideLevel = !hideLevel; render(); },
@@ -3925,6 +4194,21 @@
       render();
     });
 
+    document.addEventListener("paste", (event) => {
+      const activeControl = getActiveControl();
+      const outsideSheetEditable = !!event.target.closest?.("input, textarea, select")
+        && !event.target.closest?.("#budgetTable");
+      const inBudget = event.target.closest?.("#budgetTable")
+        || activeControl
+        || (!!cellSelection && !outsideSheetEditable);
+      if (!inBudget) return;
+      const text = event.clipboardData?.getData("text/plain");
+      if (!text) return;
+      event.preventDefault();
+      lastNativePasteAt = Date.now();
+      pasteClipboardText(text, activeControl);
+    });
+
     document.getElementById("tableScroll").addEventListener("scroll", () => {
       if (!fillState) hideFillHandle();
     });
@@ -3932,6 +4216,11 @@
     document.addEventListener("keydown", (event) => {
       const key = event.key.toLowerCase();
       const activeControl = getActiveControl();
+      const outsideSheetEditable = !!event.target.closest?.("input, textarea, select")
+        && !event.target.closest?.("#budgetTable");
+      const sheetShortcutTarget = !!activeControl
+        || !!event.target.closest?.("#budgetTable")
+        || (!!cellSelection && !outsideSheetEditable);
 
       if (event.ctrlKey && event.key.toLowerCase() === "s") {
         event.preventDefault();
@@ -3950,7 +4239,47 @@
         return;
       }
 
-      if (event.ctrlKey && key === "c") {
+      if (sheetShortcutTarget && event.ctrlKey && key === "c") {
+        event.preventDefault();
+        if (activeControl && !hasMultiCellSelection()) {
+          const hasTextSelection = typeof activeControl.selectionStart === "number"
+            && typeof activeControl.selectionEnd === "number"
+            && activeControl.selectionStart !== activeControl.selectionEnd;
+          if (hasTextSelection) {
+            const selectedText = activeControl.value.slice(activeControl.selectionStart, activeControl.selectionEnd);
+            writeClipboardText(selectedText);
+            showToast("Texto copiado.");
+            return;
+          }
+        }
+        copySelectedCells();
+        return;
+      }
+
+      if (sheetShortcutTarget && event.ctrlKey && key === "v") {
+        if (activeControl || cellSelection) {
+          window.setTimeout(() => {
+            if (Date.now() - lastNativePasteAt < 200) return;
+            readClipboardText().then((text) => pasteClipboardText(text, activeControl));
+          }, 80);
+        } else {
+          event.preventDefault();
+          pasteFromClipboard();
+        }
+        return;
+      }
+
+      if (sheetShortcutTarget && event.key === "Delete") {
+        if (activeControl || cellSelection) {
+          event.preventDefault();
+          clearSelectedCells();
+        } else {
+          clearRow();
+        }
+        return;
+      }
+
+      if (false && event.ctrlKey && key === "c") {
         if (activeControl) {
           const selectedText = activeControl.value.slice(activeControl.selectionStart || 0, activeControl.selectionEnd || 0);
           writeClipboardText(selectedText || activeControl.value);
@@ -3960,7 +4289,7 @@
         }
       }
 
-      if (event.ctrlKey && key === "v") {
+      if (false && event.ctrlKey && key === "v") {
         if (activeControl) {
           event.preventDefault();
           readClipboardText().then((text) => setCellValue(activeControl, text));
@@ -3968,7 +4297,7 @@
           pasteRow();
         }
       }
-      if (event.key === "Delete") {
+      if (false && event.key === "Delete") {
         if (activeControl) {
           event.preventDefault();
           setCellValue(activeControl, "");
