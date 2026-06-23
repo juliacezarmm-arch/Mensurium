@@ -320,6 +320,31 @@
       outline-offset: -2px;
     }
 
+    .ribbon-options {
+      min-width: 140px;
+      display: grid;
+      align-content: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #223044;
+    }
+
+    .option-check {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .option-check input {
+      width: 14px;
+      height: 14px;
+      margin: 0;
+      accent-color: var(--bar);
+    }
+
     .ribbon-line-count .value {
       height: 24px;
       display: grid;
@@ -471,7 +496,8 @@
       }
 
       .ribbon-group .ribbon-actions,
-      .ribbon-group .ribbon-filter {
+      .ribbon-group .ribbon-filter,
+      .ribbon-group .ribbon-options {
         position: absolute;
         left: 0;
         top: 62px;
@@ -491,6 +517,11 @@
 
       .ribbon-group:hover .ribbon-filter,
       .ribbon-group:focus-within .ribbon-filter {
+        display: grid;
+      }
+
+      .ribbon-group:hover .ribbon-options,
+      .ribbon-group:focus-within .ribbon-options {
         display: grid;
       }
     }
@@ -1182,6 +1213,10 @@
       z-index: 0;
     }
 
+    .sheet.hide-grid .sheet-grid-lines {
+      display: none;
+    }
+
     .sheet-grid-cols {
       position: absolute;
       inset: 0;
@@ -1430,6 +1465,7 @@
 
     .budget th,
     .budget td {
+      box-sizing: border-box;
       border: 1px solid var(--line);
       height: 24px;
       padding: 0;
@@ -1493,9 +1529,10 @@
     }
 
     .cell-control {
+      box-sizing: border-box;
       width: 100%;
       height: 100%;
-      min-height: 23px;
+      min-height: 0;
       border: 0;
       outline: 0;
       background: transparent;
@@ -1919,7 +1956,7 @@
       </div>
       <nav class="ribbon-tabs" id="ribbonTabs" aria-label="Abas de ferramentas">
         <button class="ribbon-tab active" data-ribbon-tab="home">Página Inicial</button>
-        <button class="ribbon-tab" data-ribbon-tab="print-export">Impressão e Exportação</button>
+        <button class="ribbon-tab" data-ribbon-tab="print-export">Importações e Exportações</button>
         <button class="ribbon-tab" data-ribbon-tab="help">Ajuda</button>
       </nav>
       <section class="ribbon-panel active" data-ribbon-panel="home" aria-label="Comandos da aba Página Inicial">
@@ -1965,8 +2002,17 @@
           </div>
           <div class="ribbon-label">Filtro</div>
         </div>
+        <div class="ribbon-group">
+          <div class="ribbon-options">
+            <label class="option-check">
+              <input id="gridLinesToggle" type="checkbox" checked>
+              Linhas de Grade
+            </label>
+          </div>
+          <div class="ribbon-label">Opções da Planilha</div>
+        </div>
       </section>
-      <section class="ribbon-panel" data-ribbon-panel="print-export" aria-label="Comandos de impressão e exportação">
+      <section class="ribbon-panel" data-ribbon-panel="print-export" aria-label="Comandos de importação e exportação">
         <div class="ribbon-group">
           <div class="ribbon-actions">
             <button class="tool-button" type="button">Configurar<br>Página</button>
@@ -1977,9 +2023,11 @@
         <div class="ribbon-group">
           <div class="ribbon-actions">
             <button class="tool-button" data-action="save">Salvar</button>
-            <button class="tool-button" data-action="export-json">Exportar</button>
+            <button class="tool-button" data-action="export-json">Exportar<br>JSON</button>
+            <button class="tool-button" data-action="import-json">Importar<br>JSON</button>
+            <input id="importJsonFile" type="file" accept="application/json,.json" hidden>
           </div>
-          <div class="ribbon-label">Arquivo</div>
+          <div class="ribbon-label">Dados</div>
         </div>
       </section>
       <section class="ribbon-panel" data-ribbon-panel="help" aria-label="Ajuda">
@@ -2296,6 +2344,7 @@
     const STORAGE_KEY = "mensurium.po.v2";
     const ZOOM_KEY = "mensurium.zoom";
     const AUTOSAVE_KEY = "mensurium.autosave";
+    const GRID_LINES_KEY = "mensurium.gridLines";
     const SOURCES_KEY = "mensurium.officialSources";
     const DEFAULT_OFFICIAL_SOURCES = [
       "CDHU",
@@ -2423,6 +2472,8 @@
     const ribbonToggle = document.getElementById("ribbonToggle");
     const ribbonTabs = document.getElementById("ribbonTabs");
     const ribbonPanels = document.querySelectorAll("[data-ribbon-panel]");
+    const gridLinesToggle = document.getElementById("gridLinesToggle");
+    const importJsonInput = document.getElementById("importJsonFile");
     const sourcesPanel = document.getElementById("sourcesPanel");
     const sourcesList = document.getElementById("sourcesList");
     const newSourceName = document.getElementById("newSourceName");
@@ -2866,28 +2917,43 @@
     }
 
     function rowRulerCell(number, height) {
-      const safeHeight = Math.max(1, height);
+      const safeHeight = Math.max(1, Math.round(height * 100) / 100);
       return `<div class="row-ruler-row" style="height:${safeHeight}px">${number}</div>`;
     }
 
     function sheetGridRow(height) {
-      const safeHeight = Math.max(1, height);
+      const safeHeight = Math.max(1, Math.round(height * 100) / 100);
       return `<div class="sheet-grid-row" style="height:${safeHeight}px"></div>`;
     }
 
     const frozenHeaderRowNumber = 8;
 
     function tableHeaderMetrics() {
-      const regularRowHeight = 24;
-      const headerRow = table.tHead?.rows?.[0];
-      if (!headerRow) return { top: 0, height: 24, number: frozenHeaderRowNumber };
+      const fallbackRowHeight = 24;
+      const headerHeight = 34;
+      const regularRowHeight = fallbackRowHeight;
       const top = (frozenHeaderRowNumber - 1) * regularRowHeight;
-      return { top, height: headerRow.offsetHeight || regularRowHeight, number: frozenHeaderRowNumber };
+      const headerRow = table.tHead?.rows?.[0];
+
+      if (!headerRow) {
+        return {
+          top,
+          height: headerHeight,
+          regularRowHeight,
+          number: frozenHeaderRowNumber
+        };
+      }
+
+      return {
+        top,
+        height: headerHeight,
+        regularRowHeight,
+        number: frozenHeaderRowNumber
+      };
     }
 
     function renderRowRuler(visibleRowCount) {
-      const regularRowHeight = 24;
-      const { top: headerTop, height: headerHeight, number: headerNumber } = tableHeaderMetrics();
+      const { top: headerTop, height: headerHeight, regularRowHeight, number: headerNumber } = tableHeaderMetrics();
       const frozenRowsHtml = [];
       const scrollRowsHtml = [];
       const frozenGridRowsHtml = [];
@@ -2895,7 +2961,9 @@
       let consumedTop = 0;
 
       for (let number = 1; number < headerNumber; number += 1) {
-        const height = regularRowHeight;
+        const height = number === headerNumber - 1
+          ? Math.max(1, headerTop - consumedTop)
+          : regularRowHeight;
         frozenRowsHtml.push(rowRulerCell(number, height));
         frozenGridRowsHtml.push(sheetGridRow(height));
         consumedTop += height;
@@ -3473,6 +3541,13 @@
       applyZoom(Number(zoomSlider.value) + delta);
     }
 
+    function applyGridLinesVisibility(visible, persist = true) {
+      const isVisible = Boolean(visible);
+      gridLinesToggle.checked = isVisible;
+      sheet.classList.toggle("hide-grid", !isVisible);
+      if (persist) localStorage.setItem(GRID_LINES_KEY, isVisible ? "1" : "0");
+    }
+
     function load() {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (!stored) {
@@ -3516,7 +3591,18 @@
     }
 
     function exportJson() {
-      const payload = JSON.stringify({ meta: readMeta(), rows }, null, 2);
+      const payload = JSON.stringify({
+        app: "Mensurium",
+        type: "mensurium-po",
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        meta: readMeta(),
+        rows,
+        bdiNormal: document.getElementById("bdiNormal").value,
+        bdiDif: document.getElementById("bdiDif").value,
+        totalMode: document.getElementById("totalMode").value,
+        officialSources
+      }, null, 2);
       const blob = new Blob([payload], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -3524,6 +3610,71 @@
       link.download = "mensurium-po.json";
       link.click();
       URL.revokeObjectURL(url);
+    }
+
+    function triggerImportJson() {
+      importJsonInput.value = "";
+      importJsonInput.click();
+    }
+
+    function normalizeImportedRows(importedRows) {
+      if (!Array.isArray(importedRows)) return [];
+      return importedRows
+        .filter((row) => row && typeof row === "object")
+        .map((row) => ({
+          ...createRow(),
+          ...row,
+          id: row.id || (crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random())),
+          level: row.level === "total" ? "" : (row.level || ""),
+          bdi: normalizeBdiValue(row.bdi),
+          total: Number(row.total) || 0
+        }));
+    }
+
+    function importMensuriumData(data) {
+      const importedRows = normalizeImportedRows(data.rows);
+      if (!importedRows.length) {
+        throw new Error("Arquivo sem linhas da PO.");
+      }
+
+      pushUndo();
+      rows = importedRows;
+      selectedIndex = 0;
+      activeCell = null;
+      cellSelection = null;
+      findResults = [];
+      currentFindIndex = -1;
+
+      writeMeta(data.meta || {});
+      document.getElementById("bdiNormal").value = data.bdiNormal || "20,47%";
+      document.getElementById("bdiDif").value = data.bdiDif || "11,11%";
+      document.getElementById("totalMode").value = data.totalMode || "comBdi";
+
+      if (Array.isArray(data.officialSources) && data.officialSources.length) {
+        officialSources = uniqueSources([...OFFICIAL_SOURCE_PRESET, ...data.officialSources]);
+        saveOfficialSources();
+      }
+
+      save(true);
+      render();
+      showToast("JSON importado com sucesso.");
+    }
+
+    function handleImportJsonFile(file) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.addEventListener("load", () => {
+        try {
+          const data = JSON.parse(String(reader.result || ""));
+          importMensuriumData(data);
+        } catch (error) {
+          showToast("Não foi possível importar esse JSON.");
+        }
+      });
+      reader.addEventListener("error", () => {
+        showToast("Erro ao ler o arquivo JSON.");
+      });
+      reader.readAsText(file);
     }
 
     function showToast(message) {
@@ -3573,7 +3724,8 @@
         "tabs-left": () => scrollTabStrip(-220),
         "tabs-right": () => scrollTabStrip(220),
         "save": save,
-        "export-json": exportJson
+        "export-json": exportJson,
+        "import-json": triggerImportJson
       };
       actions[action]?.();
     }
@@ -3670,6 +3822,10 @@
       switchRibbonTab(tab.dataset.ribbonTab);
     });
 
+    importJsonInput.addEventListener("change", () => {
+      handleImportJsonFile(importJsonInput.files?.[0]);
+    });
+
     ribbonTabs.addEventListener("dblclick", () => {
       toggleRibbon();
     });
@@ -3722,6 +3878,10 @@
 
     zoomSlider.addEventListener("input", () => {
       applyZoom(zoomSlider.value);
+    });
+
+    gridLinesToggle.addEventListener("change", () => {
+      applyGridLinesVisibility(gridLinesToggle.checked);
     });
 
     fillHandle.addEventListener("mousedown", (event) => {
@@ -3856,6 +4016,7 @@
     });
 
     applyZoom(localStorage.getItem(ZOOM_KEY) || 100, false);
+    applyGridLinesVisibility(localStorage.getItem(GRID_LINES_KEY) !== "0", false);
     updateAutosaveUi();
     updateRibbonToggleUi();
     load();
