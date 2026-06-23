@@ -1,0 +1,3865 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mensurium</title>
+  <style>
+    :root {
+      --ink: #152033;
+      --bar: #2f3d4f;
+      --bar-dark: #233044;
+      --line: #202020;
+      --grid: #d7dce2;
+      --paper: #f7f8fa;
+      --cream: #ffeaa8;
+      --green: #1f8f52;
+      --red: #ff1616;
+      --blue-soft: #dcebf8;
+      --gray-strong: #bfbfbf;
+      --gray-soft: #dedede;
+      --subtle: #f4f6f8;
+      --subtotal: #fff2cc;
+      --section-total: #f7d878;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: #111;
+      background: var(--paper);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 12px;
+      overflow: hidden;
+    }
+
+    button, input, select, textarea {
+      font: inherit;
+    }
+
+    .app {
+      height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      background: white;
+    }
+
+    .toolbar {
+      background: #f4f5f7;
+      border-bottom: 1px solid #c8ccd2;
+      color: #111;
+    }
+
+    .titlebar {
+      height: 42px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-right: 12px;
+      color: #fff;
+      background: var(--bar);
+    }
+
+    .quick-access {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .quick-button {
+      height: 32px;
+      min-width: 34px;
+      border: 0;
+      color: #fff;
+      background: transparent;
+      cursor: pointer;
+      font-weight: 800;
+    }
+
+    .quick-button.save-button {
+      position: relative;
+      color: transparent;
+    }
+
+    .quick-button.history-button {
+      font-size: 22px;
+      line-height: 32px;
+      font-weight: 900;
+    }
+
+    .quick-button.save-button::before {
+      content: "";
+      width: 16px;
+      height: 16px;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      border: 1.8px solid #fff;
+      border-radius: 2px;
+      box-shadow:
+        inset 0 4px 0 rgba(255, 255, 255, .18),
+        inset 0 -5px 0 transparent;
+    }
+
+    .quick-button.save-button::after {
+      content: "";
+      width: 8px;
+      height: 7px;
+      position: absolute;
+      left: 50%;
+      top: 17px;
+      transform: translateX(-50%);
+      border: 1.6px solid #fff;
+      border-bottom: 0;
+      box-shadow:
+        0 -8px 0 -3px #fff,
+        inset 0 2px 0 rgba(255, 255, 255, .9);
+    }
+
+    .quick-button:hover {
+      background: rgba(255, 255, 255, .15);
+    }
+
+    .autosave {
+      border: 0;
+      background: transparent;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: rgba(255, 255, 255, .86);
+      white-space: nowrap;
+      cursor: pointer;
+      font: inherit;
+      padding: 0;
+    }
+
+    .autosave-switch {
+      width: 40px;
+      height: 20px;
+      border: 1px solid rgba(255, 255, 255, .45);
+      border-radius: 999px;
+      position: relative;
+      background: rgba(255, 255, 255, .16);
+      transition: background .16s ease, border-color .16s ease;
+    }
+
+    .autosave-switch::after {
+      content: "";
+      width: 16px;
+      height: 16px;
+      position: absolute;
+      top: 1px;
+      left: 20px;
+      border-radius: 50%;
+      background: #fff;
+      transition: left .16s ease;
+    }
+
+    .autosave.is-off {
+      color: rgba(255, 255, 255, .68);
+    }
+
+    .autosave.is-off .autosave-switch {
+      background: rgba(0, 0, 0, .18);
+      border-color: rgba(255, 255, 255, .34);
+    }
+
+    .autosave.is-off .autosave-switch::after {
+      left: 2px;
+    }
+
+    .autosave strong {
+      min-width: 68px;
+      text-align: left;
+      color: #fff;
+      font-weight: 800;
+    }
+
+    .file-title {
+      flex: 1;
+      min-width: 220px;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: rgba(255, 255, 255, .92);
+    }
+
+    .top-search {
+      width: min(300px, 22vw);
+      height: 30px;
+      border: 1px solid rgba(255, 255, 255, .34);
+      border-radius: 3px;
+      padding: 0 12px;
+      color: #152033;
+      background: rgba(255, 255, 255, .72);
+    }
+
+    .find-controls {
+      display: inline-flex;
+      gap: 4px;
+      align-items: center;
+    }
+
+    .find-button {
+      height: 30px;
+      border: 1px solid rgba(255, 255, 255, .28);
+      border-radius: 3px;
+      color: #fff;
+      background: rgba(255, 255, 255, .1);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .find-button:hover {
+      background: rgba(255, 255, 255, .18);
+    }
+
+    .ribbon-tabs {
+      height: 34px;
+      display: flex;
+      align-items: end;
+      gap: 2px;
+      padding-left: 6px;
+      background: #f8f9fb;
+      border-bottom: 1px solid #d6d9de;
+    }
+
+    .ribbon-tab {
+      height: 30px;
+      padding: 0 12px;
+      border: 0;
+      border-bottom: 3px solid transparent;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .ribbon-tab.active {
+      border-bottom-color: var(--bar);
+      font-weight: 800;
+    }
+
+    .ribbon-panel {
+      min-height: 58px;
+      display: none;
+      align-items: stretch;
+      gap: 6px;
+      padding: 4px 8px;
+      background: #f4f5f7;
+      border-bottom: 1px solid #d0d4da;
+      overflow-x: auto;
+    }
+
+    .ribbon-panel.active {
+      display: flex;
+    }
+
+    .toolbar.ribbon-collapsed .ribbon-panel {
+      display: none;
+    }
+
+    .ribbon-group {
+      min-width: 118px;
+      display: grid;
+      grid-template-rows: 1fr auto;
+      gap: 1px;
+      padding: 0 7px;
+      border-right: 1px solid #d0d4da;
+    }
+
+    .ribbon-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .ribbon-label {
+      color: #555;
+      text-align: center;
+      font-size: 11px;
+    }
+
+    .ribbon-group.filter-ribbon-group {
+      min-width: 354px;
+    }
+
+    .ribbon-filter {
+      display: grid;
+      grid-template-columns: 132px 112px 72px;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .ribbon-filter label,
+    .ribbon-line-count {
+      display: grid;
+      gap: 2px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #223044;
+    }
+
+    .ribbon-filter select,
+    .ribbon-filter input {
+      height: 24px;
+      width: 100%;
+      min-width: 0;
+      border: 1px solid #a9b2bf;
+      background: #fff;
+      padding: 2px 6px;
+      font: inherit;
+      color: #334155;
+    }
+
+    .ribbon-filter select:focus,
+    .ribbon-filter input:focus {
+      outline: 2px solid #1b7f5a;
+      outline-offset: -2px;
+    }
+
+    .ribbon-line-count .value {
+      height: 24px;
+      display: grid;
+      place-items: center;
+      border: 1px solid #a9b2bf;
+      background: #fff;
+      color: var(--bar);
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .formula-bar {
+      height: 32px;
+      display: grid;
+      grid-template-columns: 96px 1fr;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      background: #f8f9fb;
+      border-bottom: 1px solid #c8ccd2;
+    }
+
+    .name-box,
+    .formula-input {
+      height: 25px;
+      border: 1px solid #bfc5ce;
+      border-radius: 3px;
+      background: #fff;
+      padding: 0 8px;
+    }
+
+    .brand-corner {
+      width: 44px;
+      min-width: 44px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border: 0;
+      border-right: 1px solid rgba(255, 255, 255, .16);
+      background: rgba(0, 0, 0, .18);
+      cursor: pointer;
+      box-shadow: inset -1px 0 0 rgba(0, 0, 0, .35);
+    }
+
+    .brand-corner:hover {
+      background: rgba(0, 0, 0, .28);
+    }
+
+    .brand-corner img {
+      width: 30px;
+      height: 30px;
+      object-fit: contain;
+      filter: brightness(0) invert(1) drop-shadow(0 4px 8px rgba(0, 0, 0, .35));
+    }
+
+    .tool-button {
+      min-width: 58px;
+      min-height: 30px;
+      padding: 3px 6px;
+      border: 1px solid transparent;
+      border-radius: 3px;
+      color: #111;
+      background: transparent;
+      font-weight: 700;
+      line-height: 1.1;
+      cursor: pointer;
+      box-shadow: none;
+    }
+
+    .tool-button.icon-tool {
+      min-width: 68px;
+      min-height: 52px;
+      display: grid;
+      grid-template-rows: 28px auto;
+      place-items: center;
+      gap: 2px;
+      padding: 2px 6px 4px;
+    }
+
+    .tool-button.icon-tool img {
+      width: 28px;
+      height: 28px;
+      object-fit: contain;
+      pointer-events: none;
+    }
+
+    .tool-button:hover {
+      border-color: #c6ccd4;
+      background: #fff;
+    }
+
+    .tool-button.danger {
+      background: var(--red);
+    }
+
+    .tool-button.danger:hover {
+      background: #d60d0d;
+    }
+
+    @media (max-width: 1120px) {
+      .ribbon-panel {
+        min-height: 72px;
+        align-items: stretch;
+        overflow: visible;
+      }
+
+      .ribbon-group {
+        width: 88px;
+        min-width: 88px;
+        position: relative;
+        display: flex;
+        align-items: stretch;
+        justify-content: center;
+        padding: 0 4px;
+      }
+
+      .ribbon-group.filter-ribbon-group {
+        min-width: 88px;
+      }
+
+      .ribbon-group .ribbon-label {
+        width: 100%;
+        min-height: 58px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 3px;
+        padding: 4px 6px;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        color: #111;
+        font-size: 12px;
+        line-height: 1.15;
+        text-align: center;
+        cursor: default;
+      }
+
+      .ribbon-group .ribbon-label::after {
+        content: "⌄";
+        font-size: 12px;
+        line-height: 1;
+      }
+
+      .ribbon-group:hover .ribbon-label,
+      .ribbon-group:focus-within .ribbon-label {
+        border-color: #b7c1cc;
+        background: #eef1f5;
+      }
+
+      .ribbon-group .ribbon-actions,
+      .ribbon-group .ribbon-filter {
+        position: absolute;
+        left: 0;
+        top: 62px;
+        z-index: 35;
+        display: none;
+        padding: 8px;
+        border: 1px solid #aeb7c2;
+        border-radius: 3px;
+        background: #f8f9fb;
+        box-shadow: 0 10px 22px rgba(0, 0, 0, .18);
+      }
+
+      .ribbon-group:hover .ribbon-actions,
+      .ribbon-group:focus-within .ribbon-actions {
+        display: flex;
+      }
+
+      .ribbon-group:hover .ribbon-filter,
+      .ribbon-group:focus-within .ribbon-filter {
+        display: grid;
+      }
+    }
+
+    .side-drawer {
+      position: fixed;
+      top: 42px;
+      left: 0;
+      bottom: 34px;
+      width: 286px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 14px;
+      color: #fff;
+      background: #1f2b3d;
+      border-right: 1px solid rgba(0, 0, 0, .4);
+      box-shadow: 10px 0 24px rgba(0, 0, 0, .24);
+      transform: translateX(-100%);
+      transition: transform .18s ease;
+      z-index: 25;
+    }
+
+    .side-drawer.open {
+      transform: translateX(0);
+    }
+
+    .drawer-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, .16);
+      font-size: 14px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .drawer-close {
+      width: 28px;
+      height: 28px;
+      border: 1px solid rgba(255, 255, 255, .18);
+      color: #fff;
+      background: rgba(255, 255, 255, .08);
+      cursor: pointer;
+    }
+
+    .drawer-group {
+      display: grid;
+      gap: 4px;
+    }
+
+    .drawer-group h2 {
+      margin: 8px 0 4px;
+      color: #cbd6e4;
+      font-size: 11px;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    .drawer-section-button {
+      width: 100%;
+      margin: 8px 0 4px;
+      border: 0;
+      border-radius: 4px;
+      color: #cbd6e4;
+      background: transparent;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      cursor: pointer;
+      padding: 7px 8px;
+    }
+
+    .drawer-section-button:hover,
+    .drawer-section-button.active {
+      color: #fff;
+      background: rgba(255, 255, 255, .12);
+    }
+
+    .drawer-item {
+      min-height: 30px;
+      border: 0;
+      color: #fff;
+      background: transparent;
+      text-align: left;
+      cursor: pointer;
+      padding: 6px 8px;
+      border-radius: 4px;
+    }
+
+    .drawer-item:hover,
+    .drawer-item.active {
+      background: rgba(255, 255, 255, .12);
+    }
+
+    .settings-panel {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: rgba(15, 23, 42, .34);
+      z-index: 40;
+    }
+
+    .settings-panel[hidden] {
+      display: none;
+    }
+
+    .settings-card {
+      width: min(560px, 100%);
+      max-height: min(680px, calc(100vh - 64px));
+      display: grid;
+      grid-template-rows: auto auto minmax(0, 1fr);
+      background: #fff;
+      border: 2px solid var(--bar);
+      box-shadow: 0 18px 44px rgba(15, 23, 42, .28);
+    }
+
+    .settings-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 12px;
+      color: #fff;
+      background: var(--bar);
+    }
+
+    .settings-head h2 {
+      margin: 0;
+      font-size: 15px;
+      letter-spacing: .01em;
+    }
+
+    .settings-close {
+      width: 28px;
+      height: 28px;
+      border: 1px solid rgba(255, 255, 255, .28);
+      color: #fff;
+      background: rgba(255, 255, 255, .12);
+      cursor: pointer;
+      font-weight: 800;
+    }
+
+    .settings-add {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 8px;
+      padding: 12px;
+      border-bottom: 1px solid #cbd5e1;
+      background: #f8fafc;
+    }
+
+    .settings-add input {
+      min-width: 0;
+      height: 30px;
+      border: 1px solid #94a3b8;
+      padding: 0 8px;
+      font-weight: 700;
+    }
+
+    .settings-action {
+      min-height: 30px;
+      border: 1px solid #94a3b8;
+      padding: 0 10px;
+      background: #fff;
+      cursor: pointer;
+      font-weight: 800;
+    }
+
+    .settings-action.primary {
+      color: #fff;
+      border-color: var(--bar);
+      background: var(--bar);
+    }
+
+    .settings-list {
+      overflow: auto;
+      padding: 10px 12px 12px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .source-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .source-row input {
+      height: 30px;
+      border: 1px solid #cbd5e1;
+      padding: 0 8px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .source-row button {
+      width: 34px;
+      height: 30px;
+      border: 1px solid #fca5a5;
+      color: #b91c1c;
+      background: #fff5f5;
+      cursor: pointer;
+      font-weight: 900;
+    }
+
+    .sheet-wrap {
+      position: relative;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .sheet {
+      height: 100%;
+      min-width: 1841px;
+      position: relative;
+      zoom: var(--sheet-zoom, 1);
+      background: #fff;
+      padding: 46px 16px 28px 42px;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      gap: 16px;
+    }
+
+    .frozen-pane {
+      position: relative;
+      min-width: 1660px;
+      background: transparent;
+      z-index: 5;
+    }
+
+    .summary {
+      width: 1220px;
+      margin: 0 0 4px 225px;
+      display: grid;
+      grid-template-columns: 76px 118px 116px 38px 82px 56px 82px 130px 148px 210px;
+      gap: 6px;
+      align-items: center;
+      color: #fff;
+      background: var(--bar);
+      padding: 4px 8px;
+      font-weight: 700;
+    }
+
+    .summary input,
+    .summary select,
+    .summary .readout {
+      height: 22px;
+      border: 0;
+      border-radius: 4px;
+      background: #fff;
+      color: #000;
+      padding: 3px 8px;
+      font-weight: 700;
+    }
+
+    .summary input,
+    .summary .readout {
+      text-align: right;
+    }
+
+    .summary select {
+      width: 100%;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .summary .readout.center {
+      text-align: center;
+    }
+
+    .title-block {
+      width: 1220px;
+      margin-left: 225px;
+      border: 2px solid var(--line);
+      background: transparent;
+    }
+
+    .frozen-pane.hide-level .summary,
+    .frozen-pane.hide-level .title-block {
+      margin-left: 25px;
+    }
+
+    .title-main {
+      height: 18px;
+      display: grid;
+      place-items: center;
+      background: var(--cream);
+      border-bottom: 2px solid var(--line);
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: 1fr 420px;
+    }
+
+    .meta-left,
+    .meta-right {
+      min-height: 34px;
+      display: grid;
+      align-content: center;
+      gap: 2px;
+      padding: 3px 16px;
+      font-weight: 700;
+    }
+
+    .meta-right {
+      border-left: 2px solid var(--line);
+      text-align: left;
+    }
+
+    .meta-row {
+      display: grid;
+      grid-template-columns: 88px 1fr;
+      align-items: center;
+      gap: 8px;
+      min-height: 16px;
+    }
+
+    .meta-row input {
+      width: 100%;
+      border: 0;
+      border-bottom: 1px solid #aaa;
+      padding: 0 4px;
+      font-weight: 700;
+      background: transparent;
+    }
+
+    .meta-right .meta-row {
+      grid-template-columns: 128px 1fr;
+      gap: 10px;
+    }
+
+    .meta-right .meta-row span {
+      white-space: nowrap;
+      text-align: right;
+    }
+
+    .side-panel {
+      position: absolute;
+      top: 48px;
+      left: 1660px;
+      width: 350px;
+      display: grid;
+      grid-template-columns: 1fr 104px;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .frozen-pane.hide-level .side-panel {
+      left: 1460px;
+    }
+
+    .frozen-pane.hide-helpers .side-panel {
+      left: 1420px;
+    }
+
+    .mini-box {
+      border: 2px solid var(--bar);
+      background: #fff;
+      font-weight: 700;
+      min-width: 236px;
+      box-shadow: 0 1px 0 rgba(0, 0, 0, .12);
+    }
+
+    .mini-box .head {
+      background: var(--bar);
+      color: #fff;
+      border-bottom: 1px solid var(--line);
+      text-align: center;
+      padding: 4px 3px;
+      text-transform: uppercase;
+      letter-spacing: .2px;
+    }
+
+    .mini-line {
+      display: grid;
+      grid-template-columns: 72px 1fr;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .mini-line:last-child { border-bottom: 0; }
+
+    .mini-line span,
+    .mini-line input,
+    .mini-line select {
+      min-height: 20px;
+      border: 0;
+      border-right: 1px solid var(--line);
+      padding: 3px 6px;
+      font-weight: 700;
+      background: #fff;
+    }
+
+    .mini-line input,
+    .mini-line select {
+      width: 100%;
+      border-right: 0;
+      min-width: 0;
+      color: #334155;
+    }
+
+    .mini-line select {
+      cursor: pointer;
+      outline: 1px solid transparent;
+    }
+
+    .mini-line select:focus,
+    .mini-line input:focus {
+      outline: 2px solid #1b7f5a;
+      outline-offset: -2px;
+    }
+
+    .line-count {
+      width: 104px;
+      border: 2px solid var(--line);
+      background: #fff;
+      font-weight: 700;
+      text-align: center;
+      box-shadow: 0 1px 0 rgba(0, 0, 0, .08);
+    }
+
+    .line-count .label {
+      background: var(--bar);
+      color: #fff;
+      border-bottom: 1px solid var(--line);
+      padding: 4px 3px;
+      font-size: 12px;
+    }
+
+    .line-count .value {
+      padding: 8px 6px;
+      font-size: 16px;
+      color: var(--bar);
+    }
+
+    table.budget {
+      width: 1722px;
+      margin: 0 0 0 25px;
+      border-collapse: collapse;
+      table-layout: fixed;
+      background: #fff;
+      border: 2px solid var(--line);
+      position: relative;
+      z-index: 2;
+    }
+
+    table.budget.hide-level {
+      width: 1522px;
+    }
+
+    table.budget.hide-helpers {
+      width: 1420px;
+    }
+
+    table.budget.hide-level.hide-helpers {
+      width: 1220px;
+    }
+
+    .sheet.show-official-table .sheet-rulers,
+    .sheet.show-official-table .frozen-pane,
+    .sheet.show-official-table .table-scroll {
+      display: none;
+    }
+
+    .official-table-view {
+      min-width: 1450px;
+      padding: 18px 14px 36px;
+      background:
+        linear-gradient(#e2e6eb 1px, transparent 1px) 0 0 / 100% 21px,
+        linear-gradient(90deg, #e2e6eb 1px, transparent 1px) 0 0 / 88px 100%,
+        #fff;
+    }
+
+    .official-head {
+      display: grid;
+      grid-template-columns: 220px 1fr 230px;
+      align-items: center;
+      min-height: 132px;
+      margin-bottom: 8px;
+    }
+
+    .official-logo {
+      position: relative;
+      width: fit-content;
+      color: #111;
+      font-size: 54px;
+      font-weight: 900;
+      letter-spacing: -3px;
+      line-height: 1;
+    }
+
+    .official-logo::after {
+      content: "";
+      position: absolute;
+      right: -10px;
+      top: 5px;
+      width: 8px;
+      height: 22px;
+      background: #e73838;
+      transform: skewY(-18deg);
+    }
+
+    .official-title {
+      display: grid;
+      gap: 8px;
+      justify-items: center;
+      text-align: center;
+      font-weight: 800;
+    }
+
+    .official-title .agency {
+      color: #2e63cf;
+      font-weight: 700;
+    }
+
+    .official-title .main {
+      color: #000;
+      text-transform: uppercase;
+    }
+
+    .official-title .mode {
+      color: #000;
+      text-decoration: underline;
+      text-transform: uppercase;
+    }
+
+    .official-meta {
+      display: grid;
+      gap: 8px;
+      align-self: end;
+      margin-bottom: 16px;
+      font-weight: 800;
+    }
+
+    .official-meta-row {
+      display: grid;
+      grid-template-columns: 88px 1fr;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .official-meta-row span:first-child {
+      text-align: right;
+    }
+
+    .official-metrics {
+      width: 620px;
+      margin: 0 auto 4px;
+      display: grid;
+      grid-template-columns: 1fr 90px 1fr 90px;
+      gap: 8px;
+      align-items: center;
+      font-weight: 800;
+      font-style: italic;
+    }
+
+    .official-metrics span:nth-child(even) {
+      border-bottom: 1px solid #111;
+      text-align: center;
+      font-style: normal;
+    }
+
+    .official-grid {
+      display: grid;
+      grid-template-columns: 42px 1428px;
+      grid-template-rows: 22px auto;
+      width: 1470px;
+      background: #fff;
+    }
+
+    .official-ruler-corner,
+    .official-column-ruler span,
+    .official-row-ruler span {
+      display: grid;
+      place-items: center;
+      background: #f1f4f8;
+      border-right: 1px solid #c9d1dc;
+      border-bottom: 1px solid #c9d1dc;
+      color: #111827;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .official-ruler-corner {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    .official-column-ruler {
+      grid-column: 2;
+      grid-row: 1;
+      display: grid;
+      grid-template-columns: 110px 530px 74px 88px 88px 88px 80px 88px 88px 62px 74px 56px;
+    }
+
+    .official-row-ruler {
+      grid-column: 1;
+      grid-row: 2;
+      display: grid;
+      grid-auto-rows: 17px;
+    }
+
+    .official-row-ruler span:first-child {
+      height: 34px;
+      grid-row: span 2;
+    }
+
+    .official-table-shell {
+      grid-column: 2;
+      grid-row: 2;
+    }
+
+    .official-table {
+      width: 1428px;
+      border-collapse: collapse;
+      table-layout: fixed;
+      border: 2px solid #111;
+      font-size: 12px;
+    }
+
+    .official-table th,
+    .official-table td {
+      height: 17px;
+      border: 1px solid #111;
+      padding: 1px 5px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .official-table th {
+      height: 34px;
+      background: #4472c4;
+      color: #fff;
+      text-align: center;
+      font-weight: 800;
+      white-space: normal;
+    }
+
+    .official-table td.numeric {
+      text-align: right;
+    }
+
+    .official-table td.used {
+      color: #f00;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .table-scroll {
+      position: absolute;
+      left: 42px;
+      top: 190px;
+      right: 16px;
+      bottom: 28px;
+      min-height: 0;
+      overflow: auto;
+      background: transparent;
+      z-index: 4;
+    }
+
+    .sheet-rulers {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 20;
+    }
+
+    .sheet-grid-lines {
+      position: absolute;
+      left: 42px;
+      top: 22px;
+      width: 1747px;
+      height: calc(100% - 22px);
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .sheet-grid-cols {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      grid-template-columns: 25px 128px 72px 64px 520px 74px 110px 110px 110px 120px 112px 190px 112px;
+    }
+
+    .sheet-grid-cols span {
+      border-left: 1px solid #e2e6eb;
+    }
+
+    .sheet-grid-cols span:last-child {
+      border-right: 1px solid #e2e6eb;
+    }
+
+    .sheet-grid-rows {
+      position: absolute;
+      inset: 0;
+    }
+
+    .sheet-grid-row-table,
+    .sheet-grid-row-list {
+      width: 100%;
+    }
+
+    .sheet-grid-row-table {
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    .sheet-grid-row-table td,
+    .sheet-grid-row {
+      padding: 0;
+      border-bottom: 1px solid #e2e6eb;
+      box-sizing: border-box;
+    }
+
+    .sheet-grid-row {
+      width: 100%;
+    }
+
+    .sheet-grid-row-frozen,
+    .sheet-grid-row-scroll {
+      position: absolute;
+      left: 0;
+      width: 100%;
+    }
+
+    .sheet-grid-row-frozen {
+      top: 0;
+    }
+
+    .sheet-grid-row-scroll {
+      overflow: hidden;
+    }
+
+    .sheet-grid-row-scroll-inner {
+      width: 100%;
+      will-change: transform;
+    }
+
+    .sheet-grid-lines.hide-level {
+      width: 1547px;
+    }
+
+    .sheet-grid-lines.hide-helpers {
+      width: 1445px;
+    }
+
+    .sheet-grid-lines.hide-level.hide-helpers {
+      width: 1245px;
+    }
+
+    .sheet-grid-lines.hide-level .sheet-grid-cols {
+      grid-template-columns: 25px 64px 520px 74px 110px 110px 110px 120px 112px 190px 112px;
+    }
+
+    .sheet-grid-lines.hide-helpers .sheet-grid-cols {
+      grid-template-columns: 25px 128px 72px 64px 520px 74px 110px 110px 110px 120px 112px;
+    }
+
+    .sheet-grid-lines.hide-level.hide-helpers .sheet-grid-cols {
+      grid-template-columns: 25px 64px 520px 74px 110px 110px 110px 120px 112px;
+    }
+
+    .sheet-grid-lines.hide-level .col-level,
+    .sheet-grid-lines.hide-level .col-bdi,
+    .sheet-grid-lines.hide-helpers .helper {
+      display: none;
+    }
+
+    .ruler-corner,
+    .column-ruler span,
+    .row-ruler-table th {
+      background: #f4f5f7;
+      color: #111;
+      border-right: 1px solid #c8ccd2;
+      border-bottom: 1px solid #c8ccd2;
+      font-size: 11px;
+      text-align: center;
+      user-select: none;
+    }
+
+    .ruler-corner {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 42px;
+      height: 22px;
+      z-index: 24;
+    }
+
+    .column-ruler {
+      position: absolute;
+      left: 42px;
+      top: 0;
+      width: 1747px;
+      z-index: 23;
+      display: grid;
+      grid-template-columns: 25px 128px 72px 64px 520px 74px 110px 110px 110px 120px 112px 190px 112px;
+    }
+
+    .column-ruler span {
+      line-height: 22px;
+    }
+
+    .column-ruler.hide-level {
+      width: 1547px;
+      grid-template-columns: 25px 64px 520px 74px 110px 110px 110px 120px 112px 190px 112px;
+    }
+
+    .column-ruler.hide-helpers {
+      width: 1445px;
+      grid-template-columns: 25px 128px 72px 64px 520px 74px 110px 110px 110px 120px 112px;
+    }
+
+    .column-ruler.hide-level.hide-helpers {
+      width: 1245px;
+      grid-template-columns: 25px 64px 520px 74px 110px 110px 110px 120px 112px;
+    }
+
+    .column-ruler.hide-level .col-level,
+    .column-ruler.hide-level .col-bdi,
+    .column-ruler.hide-helpers .helper {
+      display: none;
+    }
+
+    .row-ruler {
+      position: absolute;
+      left: 0;
+      top: 22px;
+      width: 42px;
+      height: calc(100% - 22px);
+      z-index: 22;
+      overflow: hidden;
+      background: #f4f5f7;
+    }
+
+    .row-ruler-table,
+    .row-ruler-list {
+      width: 42px;
+    }
+
+    .row-ruler-table {
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    .row-ruler-frozen,
+    .row-ruler-scroll {
+      position: absolute;
+      left: 0;
+      width: 42px;
+    }
+
+    .row-ruler-frozen {
+      top: 0;
+      z-index: 2;
+    }
+
+    .row-ruler-scroll {
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .row-ruler-scroll-inner {
+      width: 42px;
+      will-change: transform;
+    }
+
+    .row-ruler-table th,
+    .row-ruler-row {
+      width: 42px;
+      padding: 0;
+      font-weight: 400;
+      line-height: 1;
+      box-sizing: border-box;
+    }
+
+    .row-ruler-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f4f5f7;
+      color: #111;
+      border-right: 1px solid #c8ccd2;
+      border-bottom: 1px solid #c8ccd2;
+      font-size: 11px;
+      text-align: center;
+      user-select: none;
+    }
+
+    .po-totals {
+      width: 1090px;
+      margin: 10px 0 8px 110px;
+      border: 2px solid var(--line);
+      background: #fff2cc;
+      font-weight: 800;
+    }
+
+    .po-total-row {
+      min-height: 18px;
+      display: grid;
+      grid-template-columns: 1fr 280px;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .po-total-row:last-child {
+      border-bottom: 0;
+    }
+
+    .po-total-label {
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .po-total-value {
+      padding-right: 8px;
+      text-align: right;
+    }
+
+    .po-totals[hidden] {
+      display: none;
+    }
+
+    .budget th,
+    .budget td {
+      border: 1px solid var(--line);
+      height: 24px;
+      padding: 0;
+      overflow: hidden;
+      vertical-align: middle;
+      background: #fff;
+    }
+
+    .budget thead tr {
+      height: 34px;
+    }
+
+    .budget tbody tr {
+      height: 24px;
+    }
+
+    .budget th {
+      height: 34px;
+      background: var(--bar);
+      color: #fff;
+      font-weight: 800;
+      text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border: 0;
+      box-shadow:
+        inset 0 1px 0 var(--line),
+        inset 0 -2px 0 var(--line),
+        inset 1px 0 0 var(--line),
+        inset -1px 0 0 var(--line);
+    }
+
+    .budget thead tr.field-headers th {
+      top: 0;
+    }
+
+    .budget th:last-child {
+      box-shadow:
+        inset 0 1px 0 var(--line),
+        inset 0 -2px 0 var(--line),
+        inset 1px 0 0 var(--line),
+        inset -1px 0 0 var(--line);
+    }
+
+    .budget th.helper,
+    .budget td.helper,
+    .budget td.col-level,
+    .budget td.col-bdi {
+      background-color: #fff2cc;
+    }
+
+    .budget th.helper {
+      background-color: var(--bar);
+    }
+
+    .budget.hide-level .col-level,
+    .budget.hide-level .col-bdi,
+    .budget.hide-helpers .helper {
+      display: none;
+    }
+
+    .cell-control {
+      width: 100%;
+      height: 100%;
+      min-height: 23px;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      padding: 2px 4px;
+    }
+
+    .cell-control:focus {
+      box-shadow: inset 0 0 0 2px var(--green);
+      background: rgba(255, 255, 255, 0.28);
+    }
+
+    select.cell-control {
+      cursor: pointer;
+    }
+
+    .money,
+    .number {
+      text-align: right;
+    }
+
+    .item-number {
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .service-text {
+      font-weight: 700;
+    }
+
+    tr.level-section td { background: var(--blue-soft); font-weight: 800; }
+    tr.level-macro td { background: var(--gray-strong); font-weight: 800; }
+    tr.level-item td { background: var(--gray-soft); font-weight: 800; }
+    tr.level-subitem td { background: #f1f1f1; font-weight: 700; }
+    tr.level-service td { background: #fff; }
+    tr.level-subtotal td { background: var(--subtotal); font-weight: 800; }
+    tr.level-sectionTotal td { background: var(--section-total); font-weight: 900; }
+
+    .budget tr.level-section td.helper { background: var(--blue-soft); }
+    .budget tr.level-macro td.helper { background: var(--gray-strong); }
+    .budget tr.level-item td.helper { background: var(--gray-soft); }
+    .budget tr.level-subitem td.helper { background: #f1f1f1; }
+    .budget tr.level-subtotal td.helper { background: var(--subtotal); }
+    .budget tr.level-sectionTotal td.helper { background: var(--section-total); }
+
+    .budget tr.level-section td.col-level,
+    .budget tr.level-section td.col-bdi,
+    .budget tr.level-section td.helper { background: var(--blue-soft); }
+
+    .budget tr.level-macro td.col-level,
+    .budget tr.level-macro td.col-bdi,
+    .budget tr.level-macro td.helper { background: var(--gray-strong); }
+
+    .budget tr.level-item td.col-level,
+    .budget tr.level-item td.col-bdi,
+    .budget tr.level-item td.helper { background: var(--gray-soft); }
+
+    .budget tr.level-subitem td.col-level,
+    .budget tr.level-subitem td.col-bdi,
+    .budget tr.level-subitem td.helper { background: #f1f1f1; }
+
+    .budget tr.level-subtotal td.col-level,
+    .budget tr.level-subtotal td.col-bdi,
+    .budget tr.level-subtotal td.helper { background: var(--subtotal); }
+
+    .budget tr.level-sectionTotal td.col-level,
+    .budget tr.level-sectionTotal td.col-bdi,
+    .budget tr.level-sectionTotal td.helper { background: var(--section-total); }
+
+
+    .budget tr.level-service td.col-level,
+    .budget tr.level-service td.col-bdi,
+    .budget tr.level-service td.helper {
+      background: #fff2cc;
+    }
+
+    tr.level-service .service-placeholder {
+      color: red;
+      font-weight: 800;
+    }
+
+    tr.selected td {
+      box-shadow: inset 0 2px 0 var(--green), inset 0 -2px 0 var(--green);
+    }
+
+    tr.selected td:first-child {
+      box-shadow:
+        inset 2px 0 0 var(--green),
+        inset 0 2px 0 var(--green),
+        inset 0 -2px 0 var(--green);
+    }
+
+    tr.selected td:last-child {
+      box-shadow:
+        inset -2px 0 0 var(--green),
+        inset 0 2px 0 var(--green),
+        inset 0 -2px 0 var(--green);
+    }
+
+    .budget td.cell-selected {
+      outline: 2px solid var(--green);
+      outline-offset: -2px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .budget td.cell-selected .cell-control {
+      background: rgba(16, 137, 76, 0.08);
+    }
+
+    .budget td.find-match {
+      outline: 2px solid #4aa3ff;
+      outline-offset: -2px;
+      background: #d9ecff !important;
+    }
+
+    .budget td.find-current {
+      outline: 3px solid #1673d1;
+      outline-offset: -3px;
+      background: #c4e1ff !important;
+    }
+
+    tr.fill-target td {
+      outline: 2px solid #2d74da;
+      outline-offset: -2px;
+    }
+
+    .fill-handle {
+      position: fixed;
+      width: 9px;
+      height: 9px;
+      display: none;
+      z-index: 15;
+      border: 1px solid #fff;
+      background: var(--green);
+      cursor: crosshair;
+      box-shadow: 0 0 0 1px var(--green);
+    }
+
+    .warn {
+      color: #c00000;
+      font-weight: 800;
+    }
+
+    .bottom-tabs {
+      min-height: 56px;
+      display: grid;
+      grid-template-rows: 30px 25px;
+      gap: 0;
+      padding: 0;
+      border-top: 1px solid #c9c9c9;
+      background: #f3f5f7;
+    }
+
+    .sheet-tab-row,
+    .sheet-status-row {
+      display: flex;
+      align-items: center;
+      min-width: 0;
+    }
+
+    .sheet-tab-row {
+      gap: 6px;
+      padding: 0 8px 0 84px;
+      border-bottom: 1px solid #d7dbe0;
+    }
+
+    .sheet-status-row {
+      justify-content: space-between;
+      padding: 0 10px;
+    }
+
+    .status-left {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
+      color: #303846;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .tab-nav {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .tab-nav-button {
+      width: 24px;
+      height: 24px;
+      display: inline-grid;
+      place-items: center;
+      border: 0;
+      border-radius: 4px;
+      color: #5f6876;
+      background: transparent;
+      cursor: pointer;
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .tab-nav-button:hover {
+      color: #1f2937;
+      background: #e4e8ed;
+    }
+
+    .tab-strip-scroll {
+      min-width: 0;
+      flex: 1 1 auto;
+      overflow: hidden;
+    }
+
+    .tab-strip {
+      min-width: 0;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .tab-strip::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tab {
+      height: 26px;
+      display: inline-flex;
+      align-items: center;
+      padding: 0 14px;
+      border: 0;
+      border-radius: 6px 6px 0 0;
+      background: #e6f2df;
+      color: #111;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .tab.active {
+      background: #fff;
+      border: 1px solid #c9c9c9;
+      border-bottom-color: #fff;
+      font-weight: 800;
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+
+    .sheet-h-scroll {
+      width: var(--bottom-scroll-width, 320px);
+      min-width: 96px;
+      max-width: 50vw;
+      flex: 0 0 auto;
+      height: 18px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      align-self: center;
+      scrollbar-width: auto;
+    }
+
+    .bottom-splitter {
+      width: 14px;
+      height: 28px;
+      flex: 0 0 auto;
+      display: inline-grid;
+      place-items: center;
+      border: 0;
+      color: #525a66;
+      background: transparent;
+      cursor: col-resize;
+      font-size: 18px;
+      line-height: 1;
+      user-select: none;
+    }
+
+    .bottom-splitter:hover {
+      color: #111827;
+      background: #e4e8ed;
+    }
+
+    .sheet-h-scroll-space {
+      height: 1px;
+    }
+
+    .status-tools {
+      display: inline-flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      min-width: 182px;
+      background: #f3f5f7;
+      white-space: nowrap;
+    }
+
+    .view-buttons {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .view-button,
+    .zoom-button {
+      width: 24px;
+      height: 24px;
+      display: inline-grid;
+      place-items: center;
+      border: 0;
+      background: transparent;
+      color: #222;
+      cursor: pointer;
+    }
+
+    .view-button.active {
+      background: #fff;
+      border: 1px solid #c9c9c9;
+    }
+
+    .zoom-control {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .zoom-slider {
+      width: clamp(70px, 8vw, 110px);
+      accent-color: #5d6675;
+    }
+
+    .zoom-value {
+      min-width: 38px;
+      text-align: right;
+    }
+
+    @media (max-width: 900px) {
+      .sheet-tab-row {
+        padding-left: 70px;
+        gap: 4px;
+      }
+
+      .sheet-h-scroll {
+        width: var(--bottom-scroll-width, 170px);
+        max-width: 36vw;
+      }
+
+      .view-buttons {
+        display: none;
+      }
+
+      .status-tools {
+        min-width: 138px;
+      }
+
+      .zoom-value {
+        min-width: 34px;
+      }
+    }
+
+    .context-menu {
+      position: fixed;
+      z-index: 20;
+      min-width: 190px;
+      display: none;
+      border: 1px solid #8b8f96;
+      background: #fff;
+      box-shadow: 0 12px 26px rgba(0, 0, 0, .22);
+    }
+
+    .context-menu button {
+      width: 100%;
+      border: 0;
+      background: #fff;
+      padding: 8px 12px;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .context-menu button:hover {
+      background: #eaf2ff;
+    }
+
+    .toast {
+      position: fixed;
+      right: 20px;
+      bottom: 48px;
+      display: none;
+      max-width: 320px;
+      padding: 10px 12px;
+      border-radius: 6px;
+      color: #fff;
+      background: #1f2937;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, .24);
+      font-weight: 700;
+      z-index: 30;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="toolbar" id="appToolbar" aria-label="Ferramentas">
+      <div class="titlebar">
+        <button class="brand-corner" title="Menu" aria-label="Abrir menu" data-action="toggle-menu">
+          <img src="assets/mensurium-logo.png" alt="Mensurium">
+        </button>
+        <button class="autosave" id="autosaveToggle" data-action="toggle-autosave" aria-label="Alternar salvamento automático" aria-pressed="true">
+          <span>Salvamento Automático</span>
+          <strong id="autosaveStatus">Ligado</strong>
+          <span class="autosave-switch" aria-hidden="true"></span>
+        </button>
+        <div class="quick-access">
+          <button class="quick-button save-button" data-action="save" title="Salvar" aria-label="Salvar"></button>
+          <button class="quick-button history-button" data-action="undo" title="Desfazer">↶</button>
+          <button class="quick-button history-button" data-action="redo" title="Refazer">↷</button>
+          <button class="quick-button" id="ribbonToggle" data-action="toggle-ribbon" title="Recolher faixa" aria-label="Recolher faixa">⌃</button>
+        </div>
+        <div class="file-title">Mensurium - Planilha Orçamentária</div>
+        <div class="find-controls">
+          <input class="top-search" id="globalSearch" placeholder="Localizar" aria-label="Localizar na planilha">
+          <button class="find-button" data-action="find-next">Próximo</button>
+          <button class="find-button" data-action="find-all">Tudo</button>
+        </div>
+      </div>
+      <nav class="ribbon-tabs" id="ribbonTabs" aria-label="Abas de ferramentas">
+        <button class="ribbon-tab active" data-ribbon-tab="home">Página Inicial</button>
+        <button class="ribbon-tab" data-ribbon-tab="print-export">Impressão e Exportação</button>
+        <button class="ribbon-tab" data-ribbon-tab="help">Ajuda</button>
+      </nav>
+      <section class="ribbon-panel active" data-ribbon-panel="home" aria-label="Comandos da aba Página Inicial">
+        <div class="ribbon-group">
+          <div class="ribbon-actions">
+            <button class="tool-button icon-tool" data-action="copy"><img src="assets/icon-copiar.png" alt="">Copiar</button>
+            <button class="tool-button icon-tool" data-action="paste"><img src="assets/icon-colar.png" alt="">Colar</button>
+          </div>
+          <div class="ribbon-label">Área de Transferência</div>
+        </div>
+        <div class="ribbon-group">
+          <div class="ribbon-actions">
+            <button class="tool-button icon-tool" data-action="undo"><img src="assets/icon-desfazer.png" alt="">Desfazer</button>
+            <button class="tool-button icon-tool" data-action="redo"><img src="assets/icon-refazer.png" alt="">Refazer</button>
+          </div>
+          <div class="ribbon-label">Edição</div>
+        </div>
+        <div class="ribbon-group">
+          <div class="ribbon-actions">
+            <button class="tool-button icon-tool" data-action="insert-below"><img src="assets/icon-inserir-linha.png" alt="">Inserir<br>Linha</button>
+            <button class="tool-button icon-tool" data-action="delete"><img src="assets/icon-excluir-linha.png" alt="">Excluir<br>Linha</button>
+          </div>
+          <div class="ribbon-label">Linhas</div>
+        </div>
+        <div class="ribbon-group">
+          <div class="ribbon-actions">
+            <button class="tool-button icon-tool" data-action="toggle-aux-columns"><img src="assets/icon-ocultar-exibir.png" alt="">Ocultar / Exibir<br>auxiliares</button>
+          </div>
+          <div class="ribbon-label">Colunas</div>
+        </div>
+        <div class="ribbon-group filter-ribbon-group">
+          <div class="ribbon-filter">
+            <label>Fonte
+              <select id="filterFonte" aria-label="Filtro por fonte"></select>
+            </label>
+            <label>Código
+              <input id="filterCodigo" placeholder="Todos" aria-label="Filtro por código">
+            </label>
+            <div class="ribbon-line-count">
+              <span>Linhas</span>
+              <div class="value" id="lineCount">0</div>
+            </div>
+          </div>
+          <div class="ribbon-label">Filtro</div>
+        </div>
+      </section>
+      <section class="ribbon-panel" data-ribbon-panel="print-export" aria-label="Comandos de impressão e exportação">
+        <div class="ribbon-group">
+          <div class="ribbon-actions">
+            <button class="tool-button" type="button">Configurar<br>Página</button>
+            <button class="tool-button" type="button">Visualizar<br>Impressão</button>
+          </div>
+          <div class="ribbon-label">Impressão</div>
+        </div>
+        <div class="ribbon-group">
+          <div class="ribbon-actions">
+            <button class="tool-button" data-action="save">Salvar</button>
+            <button class="tool-button" data-action="export-json">Exportar</button>
+          </div>
+          <div class="ribbon-label">Arquivo</div>
+        </div>
+      </section>
+      <section class="ribbon-panel" data-ribbon-panel="help" aria-label="Ajuda">
+        <div class="ribbon-group">
+          <div class="ribbon-actions">
+            <button class="tool-button" type="button">Ajuda</button>
+          </div>
+          <div class="ribbon-label">Suporte</div>
+        </div>
+      </section>
+      <div class="formula-bar" aria-label="Barra de edição">
+        <input class="name-box" id="nameBox" value="A1" aria-label="Endereço da célula" readonly>
+        <input class="formula-input" id="formulaInput" aria-label="Conteúdo da célula selecionada">
+      </div>
+    </header>
+
+    <aside class="side-drawer" id="sideDrawer" aria-label="Menu principal">
+      <div class="drawer-title">
+        <span>Mensurium</span>
+        <button class="drawer-close" data-action="toggle-menu" aria-label="Fechar menu">×</button>
+      </div>
+      <section class="drawer-group">
+        <button class="drawer-section-button active" data-action="switch-tab-area" data-tab-area="documents">Documentos Principais</button>
+      </section>
+      <section class="drawer-group">
+        <button class="drawer-section-button" data-action="switch-tab-area" data-tab-area="tables">Tabelas Oficiais / Fontes</button>
+      </section>
+      <section class="drawer-group">
+        <h2>Relatórios</h2>
+      </section>
+      <section class="drawer-group">
+        <h2>Exportações</h2>
+      </section>
+      <section class="drawer-group">
+        <h2>Configurações</h2>
+        <button class="drawer-item" data-action="open-sources-config">Fontes Oficiais</button>
+      </section>
+    </aside>
+
+    <section class="settings-panel" id="sourcesPanel" aria-label="Configurações de fontes oficiais" hidden>
+      <div class="settings-card">
+        <header class="settings-head">
+          <h2>Fontes Oficiais</h2>
+          <button class="settings-close" data-action="close-sources-config" aria-label="Fechar">×</button>
+        </header>
+        <div class="settings-add">
+          <input id="newSourceName" placeholder="Nova fonte" aria-label="Nova fonte oficial">
+          <button class="settings-action primary" data-action="add-source">Adicionar</button>
+          <button class="settings-action" data-action="reset-sources">Padrão</button>
+        </div>
+        <div class="settings-list" id="sourcesList"></div>
+      </div>
+    </section>
+
+    <main class="sheet-wrap" id="sheetWrap">
+      <section class="sheet" aria-label="Planilha Orçamentária">
+        <div class="sheet-grid-lines" id="sheetGridLines" aria-hidden="true">
+          <div class="sheet-grid-cols">
+            <span></span>
+            <span class="col-level"></span>
+            <span class="col-bdi"></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span class="helper"></span>
+            <span class="helper"></span>
+          </div>
+          <div class="sheet-grid-rows" id="sheetGridRows"></div>
+        </div>
+        <div class="sheet-rulers" aria-hidden="true">
+          <div class="ruler-corner"></div>
+          <div class="column-ruler">
+            <span>A</span>
+            <span class="col-level">B</span>
+            <span class="col-bdi">C</span>
+            <span>D</span>
+            <span>E</span>
+            <span>F</span>
+            <span>G</span>
+            <span>H</span>
+            <span>I</span>
+            <span>J</span>
+            <span>K</span>
+            <span class="helper">L</span>
+            <span class="helper">M</span>
+          </div>
+          <div class="row-ruler" id="rowRuler"></div>
+        </div>
+        <section class="frozen-pane" aria-label="Cabeçalho congelado">
+          <div class="summary">
+            <span>Resumo</span>
+            <span>Total geral</span>
+            <span class="readout" id="totalSemBdi">0,00</span>
+            <span>BDI</span>
+            <input id="bdiNormal" value="20,47%" aria-label="BDI normal">
+            <span>BDI DIF</span>
+            <input id="bdiDif" value="11,11%" aria-label="BDI diferenciado">
+            <span>Última atualização</span>
+            <span class="readout center" id="updatedAt">--</span>
+            <select id="totalMode" aria-label="Modo do total">
+              <option value="comBdi">Total geral com BDI</option>
+              <option value="comBdiSeparado">Total geral com BDI separado</option>
+            </select>
+          </div>
+
+          <section class="title-block">
+            <div class="title-main">Planilha Orçamentária de Serviços e Preços</div>
+            <div class="meta-grid">
+              <div class="meta-left">
+                <label class="meta-row">OBRA:<input id="obra" aria-label="Obra"></label>
+                <label class="meta-row">LOCAL:<input id="local" aria-label="Local"></label>
+              </div>
+              <div class="meta-right">
+                <label class="meta-row"><span>PROCESSO Nº:</span><input id="processo" aria-label="Processo"></label>
+                <label class="meta-row"><span>ÁREA TOTAL (m²):</span><input id="area" aria-label="Área total"></label>
+                <label class="meta-row"><span>DATA:</span><input id="dataObra" value="março, 2022" aria-label="Data"></label>
+                <label class="meta-row"><span>MOEDA:</span><input id="moeda" value="REAL (BR)" aria-label="Moeda"></label>
+              </div>
+            </div>
+          </section>
+
+        </section>
+
+        <div class="table-scroll" id="tableScroll">
+        <table class="budget" id="budgetTable" aria-label="PO">
+          <colgroup>
+            <col class="col-level" style="width: 128px">
+            <col class="col-bdi" style="width: 72px">
+            <col style="width: 64px">
+            <col style="width: 520px">
+            <col style="width: 74px">
+            <col style="width: 110px">
+            <col style="width: 110px">
+            <col style="width: 110px">
+            <col style="width: 120px">
+            <col style="width: 112px">
+            <col class="helper" style="width: 190px">
+            <col class="helper" style="width: 112px">
+          </colgroup>
+          <thead>
+            <tr class="field-headers">
+              <th class="col-level">Nível</th>
+              <th class="col-bdi">BDI DIF</th>
+              <th>Item</th>
+              <th>Serviço</th>
+              <th>Unidade</th>
+              <th>Quantidade</th>
+              <th>Preço Unitário<br>(R$)</th>
+              <th>Preço Total<br>(R$)</th>
+              <th>Código</th>
+              <th>Fonte</th>
+              <th class="helper">Observação</th>
+              <th class="helper">Verificação</th>
+            </tr>
+          </thead>
+          <tbody id="budgetBody"></tbody>
+        </table>
+        <div class="po-totals" id="totalsSimple">
+          <div class="po-total-row">
+            <span class="po-total-label">Total geral da obra com BDI</span>
+            <span class="po-total-value" id="bottomTotalComBdi">0,00</span>
+          </div>
+        </div>
+        <div class="po-totals" id="totalsSeparated" hidden>
+          <div class="po-total-row">
+            <span class="po-total-label">Total geral da obra sem BDI</span>
+            <span class="po-total-value" id="bottomTotalSemBdi">0,00</span>
+          </div>
+          <div class="po-total-row">
+            <span class="po-total-label" id="bottomBdiNormalLabel">Valor BDI - 20,47%</span>
+            <span class="po-total-value" id="bottomValorBdiNormal">0,00</span>
+          </div>
+          <div class="po-total-row">
+            <span class="po-total-label" id="bottomBdiDifLabel">Valor BDI Diferenciado - 11,11%</span>
+            <span class="po-total-value" id="bottomValorBdiDif">0,00</span>
+          </div>
+          <div class="po-total-row">
+            <span class="po-total-label">Total geral da obra com BDI</span>
+            <span class="po-total-value" id="bottomTotalComBdiSeparado">0,00</span>
+          </div>
+        </div>
+        </div>
+
+        <section class="official-table-view" id="officialTableView" hidden>
+          <header class="official-head">
+            <div class="official-logo" id="officialLogoText">CDHU</div>
+            <div class="official-title">
+              <div class="agency" id="officialAgency">COMPANHIA DE DESENVOLVIMENTO HABITACIONAL E URBANO</div>
+              <div class="agency">DO ESTADO DE SÃO PAULO</div>
+              <div class="main" id="officialMainTitle">BOLETIM REFERENCIAL DE CUSTOS - TABELA DE SERVIÇOS</div>
+              <div class="mode">SEM DESONERAÇÃO</div>
+            </div>
+            <div class="official-meta">
+              <label class="official-meta-row"><span>Versão</span><strong id="officialVersion">194</strong></label>
+              <label class="official-meta-row"><span>Data Base:</span><strong id="officialBaseDate">MAIO/2024</strong></label>
+            </div>
+          </header>
+          <div class="official-metrics">
+            <span>BDI :</span><span id="officialBdi">0,00%</span>
+            <span>L.S.:</span><span id="officialLs">128,23%</span>
+          </div>
+          <div class="official-grid">
+            <div class="official-ruler-corner"></div>
+            <div class="official-column-ruler" aria-hidden="true">
+              <span>A</span><span>B</span><span>C</span><span>D</span><span>E</span><span>F</span>
+              <span>G</span><span>H</span><span>I</span><span>J</span><span>K</span><span>L</span>
+            </div>
+            <div class="official-row-ruler" id="officialRowRuler" aria-hidden="true"></div>
+            <div class="official-table-shell">
+              <table class="official-table" aria-label="Tabela oficial">
+                <colgroup>
+                  <col style="width: 110px">
+                  <col style="width: 530px">
+                  <col style="width: 74px">
+                  <col style="width: 88px">
+                  <col style="width: 88px">
+                  <col style="width: 88px">
+                  <col style="width: 80px">
+                  <col style="width: 88px">
+                  <col style="width: 88px">
+                  <col style="width: 62px">
+                  <col style="width: 74px">
+                  <col style="width: 56px">
+                </colgroup>
+                <thead>
+                  <tr>
+                    <th>Referência</th>
+                    <th>Descrição</th>
+                    <th>Unidade</th>
+                    <th>Material</th>
+                    <th>Mão de Obra</th>
+                    <th>Custo Total</th>
+                    <th>Custo Total +<br>BDI 20,47%</th>
+                    <th>Custo Total +<br>BDI 11,11%</th>
+                    <th>Custo Total +<br>BDI + Reajuste</th>
+                    <th>BDI<br>11,11% ?</th>
+                    <th>Custo Total -<br>Final</th>
+                    <th>Usado na<br>Planilha?</th>
+                  </tr>
+                </thead>
+                <tbody id="officialTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+      </section>
+    </main>
+
+    <nav class="bottom-tabs" aria-label="Abas, rolagem e zoom">
+      <div class="sheet-tab-row">
+      <div class="tab-nav" aria-label="Navegação das abas">
+        <button class="tab-nav-button" type="button" data-action="tabs-left" title="Mostrar abas anteriores">‹</button>
+        <button class="tab-nav-button" type="button" data-action="tabs-right" title="Mostrar próximas abas">›</button>
+      </div>
+      <div class="tab-strip-scroll" id="tabStripScroll">
+        <div class="tab-strip" id="tabStrip">
+          <button class="tab active">PO</button>
+          <button class="tab">QUANTIFICAÇÃO</button>
+          <button class="tab">MC</button>
+          <button class="tab">CRONOGRAMA</button>
+          <button class="tab">EVENTOGRAMA (%)</button>
+          <button class="tab">CURVA ABC</button>
+          <button class="tab">GRÁFICO CURVA ABC</button>
+          <button class="tab">MATRIZ DE RISCO</button>
+        </div>
+      </div>
+      <button class="bottom-splitter" id="bottomSplitter" type="button" title="Ajustar espaço das abas e da rolagem" aria-label="Ajustar espaço das abas e da rolagem">⋮</button>
+      <div class="sheet-h-scroll" id="sheetHorizontalScroll" aria-label="Rolagem horizontal da planilha">
+        <div class="sheet-h-scroll-space" id="sheetHorizontalSpace"></div>
+      </div>
+      </div>
+      <div class="sheet-status-row">
+        <div class="status-left">
+          <span>Pronto</span>
+          <span>Calcula</span>
+        </div>
+      <div class="status-tools" aria-label="Visualização e zoom">
+        <div class="view-buttons" aria-label="Modo de visualização">
+          <button class="view-button active" title="Normal">▦</button>
+          <button class="view-button" title="Layout da Página">▤</button>
+          <button class="view-button" title="Quebra de Página">▥</button>
+        </div>
+        <div class="zoom-control">
+          <button class="zoom-button" data-action="zoom-out" title="Diminuir zoom">−</button>
+          <input class="zoom-slider" id="zoomSlider" type="range" min="50" max="130" step="5" value="100" aria-label="Zoom da planilha">
+          <button class="zoom-button" data-action="zoom-in" title="Aumentar zoom">+</button>
+          <span class="zoom-value" id="zoomValue">100%</span>
+        </div>
+      </div>
+      </div>
+    </nav>
+  </div>
+
+  <div class="context-menu" id="contextMenu" role="menu">
+    <button data-action="copy">Copiar linha</button>
+    <button data-action="paste">Colar na linha</button>
+    <button data-action="insert-above">Inserir linha acima</button>
+    <button data-action="insert-below">Inserir linha abaixo</button>
+    <button data-action="duplicate">Duplicar linha</button>
+    <button data-action="clear">Limpar conteúdo</button>
+    <button data-action="delete">Excluir linha</button>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <div class="fill-handle" id="fillHandle" title="Arrastar para preencher"></div>
+
+  <script>
+    const STORAGE_KEY = "mensurium.po.v2";
+    const ZOOM_KEY = "mensurium.zoom";
+    const AUTOSAVE_KEY = "mensurium.autosave";
+    const SOURCES_KEY = "mensurium.officialSources";
+    const DEFAULT_OFFICIAL_SOURCES = [
+      "CDHU",
+      "CDHU INS",
+      "FDE",
+      "SINAPI",
+      "SINAPI INS",
+      "SIURB EDIF",
+      "SIURB INFRA",
+      "SIURB INS",
+      "CPU",
+      "COT",
+      "ORÇAMENTO"
+    ];
+
+    const OFFICIAL_SOURCE_PRESET = uniqueSources([
+      "CDHU",
+      "CDHU INS",
+      "COT",
+      "CPU",
+      "DETIC",
+      "FDE",
+      "ORÇAMENTO",
+      "PROJETOS",
+      "SABESP",
+      "SICRO - DNIT",
+      "SINAPI",
+      "SINAPI INS",
+      "SIURB EDIF",
+      "SIURB INFRA",
+      "SIURB INS",
+      "TABELA DE HONORÁRIOS",
+      "TCPO",
+      "TPU"
+    ]);
+
+    const levelOptions = [
+      ["", ""],
+      ["section", "Seção"],
+      ["macro", "Macroitem"],
+      ["item", "Item"],
+      ["subitem", "Subitem"],
+      ["service", "Serviço"],
+      ["subtotal", "Subtotal"],
+      ["sectionTotal", "Subtotal da Seção"]
+    ];
+
+    const bdiOptions = [
+      ["", ""],
+      ["sim", "Sim"]
+    ];
+
+    const catalog = {
+      "CDHU|01.01.001": { descricao: "Administração local da obra", unidade: "mês", preco: 12500 },
+      "CDHU|02.01.010": { descricao: "Tapume em chapa de madeira compensada", unidade: "m²", preco: 138.42 },
+      "SINAPI|98524": { descricao: "Limpeza manual de terreno com vegetação rasteira", unidade: "m²", preco: 3.87 },
+      "SINAPI|93358": { descricao: "Escavação manual de vala", unidade: "m³", preco: 74.19 },
+      "FDE|06.02.020": { descricao: "Concreto fck 25 MPa preparado em obra", unidade: "m³", preco: 622.3 }
+    };
+
+    let rows = [];
+    let selectedIndex = 0;
+    let clipboardRow = null;
+    let hideLevel = false;
+    let hideHelpers = false;
+    let activeCell = null;
+    let formulaTargetControl = null;
+    let fillState = null;
+    let cellSelection = null;
+    let selectingCells = false;
+    let findResults = [];
+    let currentFindIndex = -1;
+    let undoStack = [];
+    let redoStack = [];
+    let internalClipboardText = "";
+    let autosaveEnabled = localStorage.getItem(AUTOSAVE_KEY) !== "off";
+    let officialSources = loadOfficialSources();
+    let activeTabArea = "documents";
+    let activeTabLabel = "PO";
+    let bottomSplitterDrag = null;
+
+    const DOCUMENT_TABS = [
+      "PO",
+      "QUANTIFICAÇÃO",
+      "MC",
+      "CRONOGRAMA",
+      "EVENTOGRAMA (%)",
+      "CURVA ABC",
+      "GRÁFICO CURVA ABC",
+      "MATRIZ DE RISCO"
+    ];
+
+    const body = document.getElementById("budgetBody");
+    const table = document.getElementById("budgetTable");
+    const tabStrip = document.getElementById("tabStrip");
+    const tabStripScroll = document.getElementById("tabStripScroll");
+    const bottomSplitter = document.getElementById("bottomSplitter");
+    const sheetHorizontalScroll = document.getElementById("sheetHorizontalScroll");
+    const sheetHorizontalSpace = document.getElementById("sheetHorizontalSpace");
+    const sheet = document.querySelector(".sheet");
+    const sheetGridLines = document.getElementById("sheetGridLines");
+    const sheetGridCols = sheetGridLines.querySelector(".sheet-grid-cols");
+    const sheetGridRows = document.getElementById("sheetGridRows");
+    const officialTableView = document.getElementById("officialTableView");
+    const officialTableBody = document.getElementById("officialTableBody");
+    const officialRowRuler = document.getElementById("officialRowRuler");
+    const officialLogoText = document.getElementById("officialLogoText");
+    const officialMainTitle = document.getElementById("officialMainTitle");
+    const rowRuler = document.getElementById("rowRuler");
+    const columnRuler = document.querySelector(".column-ruler");
+    const frozenPane = document.querySelector(".frozen-pane");
+    const tableScroll = document.getElementById("tableScroll");
+    const contextMenu = document.getElementById("contextMenu");
+    const toast = document.getElementById("toast");
+    const sideDrawer = document.getElementById("sideDrawer");
+    const appToolbar = document.getElementById("appToolbar");
+    const nameBox = document.getElementById("nameBox");
+    const formulaInput = document.getElementById("formulaInput");
+    const globalSearch = document.getElementById("globalSearch");
+    const zoomSlider = document.getElementById("zoomSlider");
+    const zoomValue = document.getElementById("zoomValue");
+    const fillHandle = document.getElementById("fillHandle");
+    const autosaveToggle = document.getElementById("autosaveToggle");
+    const autosaveStatus = document.getElementById("autosaveStatus");
+    const ribbonToggle = document.getElementById("ribbonToggle");
+    const ribbonTabs = document.getElementById("ribbonTabs");
+    const ribbonPanels = document.querySelectorAll("[data-ribbon-panel]");
+    const sourcesPanel = document.getElementById("sourcesPanel");
+    const sourcesList = document.getElementById("sourcesList");
+    const newSourceName = document.getElementById("newSourceName");
+
+    function createRow(level = "") {
+      return {
+        id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
+        level,
+        bdi: "",
+        item: "",
+        service: "",
+        unit: "",
+        quantity: "",
+        price: "",
+        total: 0,
+        code: "",
+        source: "",
+        observation: "",
+        check: ""
+      };
+    }
+
+    function seedRows() {
+      rows = Array.from({ length: 36 }, () => createRow());
+    }
+
+    function normalizeBdiValue(value) {
+      return value === "sim" || value === "diferenciado" ? "sim" : "";
+    }
+
+    function normalizeSourceName(value) {
+      return String(value || "").trim().replace(/\s+/g, " ").toUpperCase();
+    }
+
+    function uniqueSources(values) {
+      return [...new Set(values.map(normalizeSourceName).filter(Boolean))].sort();
+    }
+
+    function loadOfficialSources() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(SOURCES_KEY) || "null");
+        if (Array.isArray(saved) && saved.length) return uniqueSources([...OFFICIAL_SOURCE_PRESET, ...saved]);
+      } catch {
+        // Keep defaults when saved preferences are unreadable.
+      }
+      return uniqueSources(OFFICIAL_SOURCE_PRESET);
+    }
+
+    function saveOfficialSources() {
+      officialSources = uniqueSources(officialSources);
+      localStorage.setItem(SOURCES_KEY, JSON.stringify(officialSources));
+      renderSourcesPanel();
+      render();
+    }
+
+    function renderSourcesPanel() {
+      sourcesList.innerHTML = officialSources.map((source, index) => `
+        <label class="source-row">
+          <input value="${escapeHtml(source)}" data-source-index="${index}" aria-label="Fonte oficial ${index + 1}">
+          <button type="button" data-action="remove-source" data-source-index="${index}" aria-label="Remover ${escapeHtml(source)}">×</button>
+        </label>
+      `).join("");
+    }
+
+    function getTabsForArea(area = activeTabArea) {
+      if (area === "tables") return [...officialSources, "FONTES"];
+      return DOCUMENT_TABS;
+    }
+
+    function renderTabStrip() {
+      const tabs = getTabsForArea();
+      if (!tabs.includes(activeTabLabel)) activeTabLabel = tabs[0] || "";
+      tabStrip.innerHTML = tabs.map((label, index) => (
+        `<button class="tab${label === activeTabLabel ? " active" : ""}" type="button" data-tab-label="${escapeHtml(label)}">${escapeHtml(label)}</button>`
+      )).join("");
+
+      document.querySelectorAll("[data-tab-area]").forEach((button) => {
+        button.classList.toggle("active", button.dataset.tabArea === activeTabArea);
+      });
+      requestAnimationFrame(() => {
+        tabStrip.querySelector(".tab.active")?.scrollIntoView({ block: "nearest", inline: "nearest" });
+      });
+    }
+
+    function renderOfficialTable() {
+      const source = activeTabLabel || "CDHU";
+      officialLogoText.textContent = source === "CDHU" ? "CDHU" : source;
+      officialMainTitle.textContent = source === "CDHU"
+        ? "BOLETIM REFERENCIAL DE CUSTOS - TABELA DE SERVIÇOS"
+        : `TABELA OFICIAL - ${source}`;
+
+      const rowCount = 34;
+      officialRowRuler.innerHTML = Array.from({ length: rowCount + 1 }, (_, index) => (
+        `<span>${index + 1}</span>`
+      )).join("");
+
+      officialTableBody.innerHTML = Array.from({ length: rowCount }, (_, index) => `
+        <tr>
+          <td>${index < 2 && source === "CDHU" ? `0${index + 1}.01.00${index + 1}` : ""}</td>
+          <td>${index === 0 && source === "CDHU" ? "Administração local da obra" : ""}</td>
+          <td>${index === 0 && source === "CDHU" ? "mês" : ""}</td>
+          <td class="numeric"></td>
+          <td class="numeric"></td>
+          <td class="numeric"></td>
+          <td class="numeric"></td>
+          <td class="numeric">-</td>
+          <td class="numeric"></td>
+          <td></td>
+          <td class="numeric">0,00</td>
+          <td class="used">0</td>
+        </tr>
+      `).join("");
+    }
+
+    function updateWorkspaceArea() {
+      const isOfficialTable = activeTabArea === "tables";
+      sheet.classList.toggle("show-official-table", isOfficialTable);
+      officialTableView.hidden = !isOfficialTable;
+      if (isOfficialTable) renderOfficialTable();
+    }
+
+    function switchTabArea(area) {
+      activeTabArea = area === "tables" ? "tables" : "documents";
+      activeTabLabel = getTabsForArea()[0] || "";
+      renderTabStrip();
+      updateWorkspaceArea();
+      sideDrawer.classList.remove("open");
+    }
+
+    function openSourcesConfig() {
+      renderSourcesPanel();
+      sourcesPanel.hidden = false;
+      sideDrawer.classList.remove("open");
+      newSourceName.focus();
+    }
+
+    function closeSourcesConfig() {
+      sourcesPanel.hidden = true;
+    }
+
+    function addOfficialSource() {
+      const source = normalizeSourceName(newSourceName.value);
+      if (!source) {
+        showToast("Digite o nome da fonte.");
+        return;
+      }
+      if (officialSources.includes(source)) {
+        showToast("Essa fonte já existe.");
+        return;
+      }
+      officialSources.push(source);
+      newSourceName.value = "";
+      saveOfficialSources();
+      showToast("Fonte adicionada.");
+    }
+
+    function removeOfficialSource(index) {
+      officialSources.splice(index, 1);
+      saveOfficialSources();
+      showToast("Fonte removida.");
+    }
+
+    function updateOfficialSource(index, value) {
+      const source = normalizeSourceName(value);
+      if (!source) {
+        renderSourcesPanel();
+        return;
+      }
+      officialSources[index] = source;
+      saveOfficialSources();
+    }
+
+    function resetOfficialSources() {
+      officialSources = uniqueSources(OFFICIAL_SOURCE_PRESET);
+      saveOfficialSources();
+      showToast("Lista padrão restaurada.");
+    }
+
+    function formatCurrency(value) {
+      return Number(value || 0).toLocaleString("pt-BR", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+
+    function parseNumber(value) {
+      if (typeof value === "number") return value;
+      const cleaned = String(value || "")
+        .replace(/[^\d,.-]/g, "")
+        .replace(/\./g, "")
+        .replace(",", ".");
+      const parsed = Number(cleaned);
+      return Number.isFinite(parsed) ? parsed : 0;
+    }
+
+    function parsePercent(value) {
+      return parseNumber(value) / 100;
+    }
+
+    function updateFonteFilterOptions() {
+      const select = document.getElementById("filterFonte");
+      const current = select.value;
+      const options = new Set([...officialSources, ...Object.keys(catalog).map((key) => key.split("|")[0])]);
+      rows.forEach((row) => {
+        if (row.source) options.add(String(row.source).toUpperCase());
+      });
+      const sortedOptions = [...options].sort();
+      select.innerHTML = `<option value="">Todas</option>` + sortedOptions
+        .sort()
+        .map((source) => `<option value="${escapeHtml(source)}">${escapeHtml(source)}</option>`)
+        .join("");
+      select.value = current && sortedOptions.includes(current) ? current : "";
+    }
+
+    function optionMarkup(options, current) {
+      return options.map(([value, label]) => {
+        const selected = value === current ? "selected" : "";
+        return `<option value="${value}" ${selected}>${label}</option>`;
+      }).join("");
+    }
+
+    function classForLevel(level) {
+      return level ? `level-${level}` : "level-blank";
+    }
+
+    function isService(row) {
+      return row.level === "service";
+    }
+
+    function isCalculated(row) {
+      return ["subtotal", "sectionTotal"].includes(row.level);
+    }
+
+    function applyCatalog(row) {
+      if (!isService(row)) return;
+      const source = String(row.source || "").trim().toUpperCase();
+      const code = String(row.code || "").trim();
+      const found = catalog[`${source}|${code}`];
+
+      if (found) {
+        row.service = found.descricao;
+        row.unit = found.unidade;
+        row.price = String(found.preco).replace(".", ",");
+        row.check = "";
+      } else if (source || code) {
+        row.check = "Código/fonte não encontrado";
+      } else {
+        row.check = "";
+      }
+    }
+
+    function renumberRows() {
+      let macro = 0;
+      let item = 0;
+      let subitem = 0;
+      let service = 0;
+
+      rows.forEach((row) => {
+        if (row.level === "section") {
+          macro = 0;
+          item = 0;
+          subitem = 0;
+          service = 0;
+          row.item = "";
+        } else if (row.level === "macro") {
+          macro += 1;
+          item = 0;
+          subitem = 0;
+          service = 0;
+          row.item = `${macro}.`;
+        } else if (row.level === "item") {
+          item += 1;
+          subitem = 0;
+          service = 0;
+          row.item = `${macro || 1}.${item}.`;
+        } else if (row.level === "subitem") {
+          subitem += 1;
+          service = 0;
+          row.item = `${macro || 1}.${item || 1}.${subitem}.`;
+        } else if (row.level === "service") {
+          service += 1;
+          const base = subitem
+            ? `${macro || 1}.${item || 1}.${subitem}`
+            : item
+              ? `${macro || 1}.${item}`
+              : `${macro || 1}`;
+          row.item = `${base}.${service}`;
+        } else if (row.level === "subtotal") {
+          row.item = "";
+          row.service = row.service || "SUBTOTAL";
+        } else if (row.level === "sectionTotal") {
+          row.item = "";
+          row.service = row.service || "SUBTOTAL DA SEÇÃO";
+        } else {
+          row.item = "";
+        }
+      });
+    }
+
+    function recalc() {
+      renumberRows();
+
+      const bdiNormal = parsePercent(document.getElementById("bdiNormal").value);
+      const bdiDif = parsePercent(document.getElementById("bdiDif").value);
+      let totalSemBdi = 0;
+      let totalComBdiSeparado = 0;
+      let valorBdiNormal = 0;
+      let valorBdiDif = 0;
+      let runningSubtotal = 0;
+      let runningSection = 0;
+
+      rows.forEach((row) => {
+        applyCatalog(row);
+
+        if (isService(row)) {
+          const quantity = parseNumber(row.quantity);
+          const price = parseNumber(row.price);
+          row.total = quantity * price;
+          runningSubtotal += row.total;
+          runningSection += row.total;
+          totalSemBdi += row.total;
+
+          if (row.bdi === "sim") {
+            valorBdiDif += row.total * bdiDif;
+          } else {
+            valorBdiNormal += row.total * bdiNormal;
+          }
+
+          totalComBdiSeparado += row.total
+            + (row.bdi === "sim" ? row.total * bdiDif : row.total * bdiNormal);
+        }
+
+        if (row.level === "subtotal") {
+          row.total = runningSubtotal;
+          runningSubtotal = 0;
+        }
+
+        if (row.level === "sectionTotal") {
+          row.total = runningSection;
+          runningSection = 0;
+        }
+
+      });
+
+      const totalComBdi = totalSemBdi * (1 + bdiNormal);
+      const diferencaBdi = totalComBdiSeparado - totalComBdi;
+      const totalMode = document.getElementById("totalMode").value;
+
+      document.getElementById("totalSemBdi").textContent = formatCurrency(totalSemBdi);
+      document.getElementById("bottomTotalComBdi").textContent = formatCurrency(totalComBdi);
+      document.getElementById("bottomTotalSemBdi").textContent = formatCurrency(totalSemBdi);
+      document.getElementById("bottomValorBdiNormal").textContent = formatCurrency(valorBdiNormal);
+      document.getElementById("bottomValorBdiDif").textContent = formatCurrency(valorBdiDif);
+      document.getElementById("bottomTotalComBdiSeparado").textContent = formatCurrency(totalComBdiSeparado);
+      document.getElementById("bottomBdiNormalLabel").textContent = `Valor BDI - ${document.getElementById("bdiNormal").value || "0%"}`;
+      document.getElementById("bottomBdiDifLabel").textContent = `Valor BDI Diferenciado - ${document.getElementById("bdiDif").value || "0%"}`;
+      document.getElementById("totalsSimple").hidden = totalMode !== "comBdi";
+      document.getElementById("totalsSeparated").hidden = totalMode !== "comBdiSeparado";
+      document.getElementById("updatedAt").textContent = new Date().toLocaleString("pt-BR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    }
+
+    function cellSearchValues(row) {
+      return [
+        row.level,
+        row.bdi,
+        row.item,
+        row.service,
+        row.unit,
+        row.quantity,
+        row.price,
+        row.total ? formatCurrency(row.total) : "",
+        row.code,
+        row.source,
+        row.observation,
+        row.check
+      ];
+    }
+
+    function normalizeFindText(value) {
+      return String(value || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase();
+    }
+
+    function updateFindResults(resetCurrent = false) {
+      const current = findResults[currentFindIndex];
+      const term = normalizeFindText(globalSearch.value.trim());
+      findResults = [];
+      if (resetCurrent) currentFindIndex = -1;
+      if (!term) return;
+
+      rows.forEach((row, rowIndex) => {
+        cellSearchValues(row).forEach((value, colIndex) => {
+          if (normalizeFindText(value).includes(term)) {
+            findResults.push({ row: rowIndex, col: colIndex });
+          }
+        });
+      });
+
+      if (!resetCurrent && current) {
+        const nextIndex = findResults.findIndex((result) => result.row === current.row && result.col === current.col);
+        currentFindIndex = nextIndex;
+      }
+    }
+
+    function findClass(rowIndex, colIndex) {
+      if (!findResults.length) return "";
+      const matchIndex = findResults.findIndex((result) => result.row === rowIndex && result.col === colIndex);
+      if (matchIndex < 0) return "";
+      return matchIndex === currentFindIndex ? " find-current" : " find-match";
+    }
+
+    function locateNext() {
+      updateFindResults();
+      if (!findResults.length) {
+        render();
+        if (globalSearch.value.trim()) showToast("Nenhum resultado encontrado.");
+        return;
+      }
+
+      currentFindIndex = (currentFindIndex + 1) % findResults.length;
+      const current = findResults[currentFindIndex];
+      selectedIndex = current.row;
+      cellSelection = { start: current, end: current };
+      render();
+      const cell = body.querySelector(`tr[data-index="${current.row}"] td[data-col="${current.col}"]`);
+      cell?.scrollIntoView({ block: "center", inline: "center" });
+    }
+
+    function locateAll() {
+      updateFindResults(true);
+      render();
+      showToast(findResults.length ? `${findResults.length} ocorrência(s) encontrada(s).` : "Nenhum resultado encontrado.");
+    }
+
+    function rowRulerCell(number, height) {
+      const safeHeight = Math.max(1, height);
+      return `<div class="row-ruler-row" style="height:${safeHeight}px">${number}</div>`;
+    }
+
+    function sheetGridRow(height) {
+      const safeHeight = Math.max(1, height);
+      return `<div class="sheet-grid-row" style="height:${safeHeight}px"></div>`;
+    }
+
+    const frozenHeaderRowNumber = 8;
+
+    function tableHeaderMetrics() {
+      const regularRowHeight = 24;
+      const headerRow = table.tHead?.rows?.[0];
+      if (!headerRow) return { top: 0, height: 24, number: frozenHeaderRowNumber };
+      const top = (frozenHeaderRowNumber - 1) * regularRowHeight;
+      return { top, height: headerRow.offsetHeight || regularRowHeight, number: frozenHeaderRowNumber };
+    }
+
+    function renderRowRuler(visibleRowCount) {
+      const regularRowHeight = 24;
+      const { top: headerTop, height: headerHeight, number: headerNumber } = tableHeaderMetrics();
+      const frozenRowsHtml = [];
+      const scrollRowsHtml = [];
+      const frozenGridRowsHtml = [];
+      const scrollGridRowsHtml = [];
+      let consumedTop = 0;
+
+      for (let number = 1; number < headerNumber; number += 1) {
+        const height = regularRowHeight;
+        frozenRowsHtml.push(rowRulerCell(number, height));
+        frozenGridRowsHtml.push(sheetGridRow(height));
+        consumedTop += height;
+      }
+
+      frozenRowsHtml.push(rowRulerCell(headerNumber, headerHeight));
+      frozenGridRowsHtml.push(sheetGridRow(headerHeight));
+
+      const scrollTopStart = consumedTop + headerHeight;
+      let consumedHeight = 0;
+      let lastNumber = headerNumber;
+      body.querySelectorAll("tr").forEach((rowEl) => {
+        if (rowEl.style.display === "none") return;
+        const rowIndex = Number(rowEl.dataset.index);
+        const height = rowEl.offsetHeight || regularRowHeight;
+        const number = dataRowNumber(rowIndex);
+        lastNumber = number;
+        consumedHeight += height;
+        scrollRowsHtml.push(rowRulerCell(number, height));
+        scrollGridRowsHtml.push(sheetGridRow(height));
+      });
+
+      for (let number = lastNumber + 1; number < lastNumber + 80 && consumedHeight < rowRuler.clientHeight + tableScroll.scrollTop; number += 1) {
+        scrollRowsHtml.push(rowRulerCell(number, regularRowHeight));
+        scrollGridRowsHtml.push(sheetGridRow(regularRowHeight));
+        consumedHeight += regularRowHeight;
+      }
+
+      rowRuler.innerHTML = `
+        <div class="row-ruler-frozen">
+          <div class="row-ruler-list" aria-hidden="true">${frozenRowsHtml.join("")}</div>
+        </div>
+        <div class="row-ruler-scroll" style="top:${scrollTopStart}px;height:${Math.max(0, rowRuler.clientHeight - scrollTopStart)}px">
+          <div class="row-ruler-scroll-inner" style="transform:translateY(${-tableScroll.scrollTop}px)">
+            <div class="row-ruler-list" aria-hidden="true">${scrollRowsHtml.join("")}</div>
+          </div>
+        </div>
+      `;
+
+      sheetGridRows.innerHTML = `
+        <div class="sheet-grid-row-frozen">
+          <div class="sheet-grid-row-list" aria-hidden="true">${frozenGridRowsHtml.join("")}</div>
+        </div>
+        <div class="sheet-grid-row-scroll" style="top:${scrollTopStart}px;height:${Math.max(0, rowRuler.clientHeight - scrollTopStart)}px">
+          <div class="sheet-grid-row-scroll-inner" style="transform:translateY(${-tableScroll.scrollTop}px)">
+            <div class="sheet-grid-row-list" aria-hidden="true">${scrollGridRowsHtml.join("")}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function tableHeaderRowNumber() {
+      return tableHeaderMetrics().number;
+    }
+
+    function dataRowNumber(rowIndex) {
+      return tableHeaderRowNumber() + rowIndex + 1;
+    }
+
+    function syncRowRulerScroll() {
+      renderRowRuler(rows.length);
+    }
+
+    function scrollTabStrip(delta) {
+      tabStrip.scrollBy({ left: delta, behavior: "smooth" });
+    }
+
+    function syncHorizontalScrollbarSize() {
+      const scrollWidth = Math.max(tableScroll.scrollWidth, tableScroll.clientWidth);
+      sheetHorizontalSpace.style.width = `${scrollWidth}px`;
+      if (sheetHorizontalScroll.scrollLeft !== tableScroll.scrollLeft) {
+        sheetHorizontalScroll.scrollLeft = tableScroll.scrollLeft;
+      }
+    }
+
+    function syncTableHorizontalScroll() {
+      if (tableScroll.scrollLeft !== sheetHorizontalScroll.scrollLeft) {
+        tableScroll.scrollLeft = sheetHorizontalScroll.scrollLeft;
+      }
+    }
+
+    function syncFooterHorizontalScroll() {
+      if (sheetHorizontalScroll.scrollLeft !== tableScroll.scrollLeft) {
+        sheetHorizontalScroll.scrollLeft = tableScroll.scrollLeft;
+      }
+    }
+
+    function setBottomScrollWidth(width) {
+      const minWidth = 96;
+      const maxWidth = Math.max(minWidth, window.innerWidth - 360);
+      const nextWidth = Math.min(Math.max(width, minWidth), maxWidth);
+      document.documentElement.style.setProperty("--bottom-scroll-width", `${nextWidth}px`);
+      syncHorizontalScrollbarSize();
+    }
+
+    function beginBottomSplitterDrag(event) {
+      event.preventDefault();
+      bottomSplitterDrag = {
+        startX: event.clientX,
+        startWidth: sheetHorizontalScroll.getBoundingClientRect().width
+      };
+      document.body.style.cursor = "col-resize";
+    }
+
+    function moveBottomSplitter(event) {
+      if (!bottomSplitterDrag) return;
+      setBottomScrollWidth(bottomSplitterDrag.startWidth - (event.clientX - bottomSplitterDrag.startX));
+    }
+
+    function endBottomSplitterDrag() {
+      if (!bottomSplitterDrag) return;
+      bottomSplitterDrag = null;
+      document.body.style.cursor = "";
+    }
+
+    function render() {
+      recalc();
+      renderTabStrip();
+      updateWorkspaceArea();
+
+      table.classList.toggle("hide-level", hideLevel);
+      table.classList.toggle("hide-helpers", hideHelpers);
+      sheet.classList.toggle("hide-level", hideLevel);
+      sheet.classList.toggle("hide-helpers", hideHelpers);
+      columnRuler.classList.toggle("hide-level", hideLevel);
+      columnRuler.classList.toggle("hide-helpers", hideHelpers);
+      sheetGridLines.classList.toggle("hide-level", hideLevel);
+      sheetGridLines.classList.toggle("hide-helpers", hideHelpers);
+      frozenPane.classList.toggle("hide-level", hideLevel);
+      frozenPane.classList.toggle("hide-helpers", hideHelpers);
+
+      const fonteFilter = document.getElementById("filterFonte").value.trim().toUpperCase();
+      const codeFilter = document.getElementById("filterCodigo").value.trim().toUpperCase();
+      updateFonteFilterOptions();
+      updateFindResults();
+
+      const visibleRowCount = rows.filter((row) => {
+        const technicalValue = isService(row);
+        const hiddenByFonte = technicalValue && fonteFilter && String(row.source || "").toUpperCase() !== fonteFilter;
+        const hiddenByCode = technicalValue && codeFilter && !String(row.code || "").toUpperCase().includes(codeFilter);
+        return !(hiddenByFonte || hiddenByCode);
+      }).length;
+      document.getElementById("lineCount").textContent = visibleRowCount ? frozenHeaderRowNumber + visibleRowCount : frozenHeaderRowNumber;
+      body.innerHTML = rows.map((row, index) => {
+        const technicalValue = isService(row);
+        const hiddenByFonte = technicalValue && fonteFilter && String(row.source || "").toUpperCase() !== fonteFilter;
+        const hiddenByCode = technicalValue && codeFilter && !String(row.code || "").toUpperCase().includes(codeFilter);
+        const display = hiddenByFonte || hiddenByCode ? "display:none" : "";
+        const selected = index === selectedIndex ? "selected" : "";
+        const serviceClass = (!row.level || (isService(row) && !row.service)) ? "service-placeholder" : "";
+        const serviceValue = row.service || (row.level ? (isService(row) ? "Digite - CÓDIGO e FONTE" : "Digite a Descrição") : "Selecione o Nível");
+        const readonly = isCalculated(row) ? "readonly" : "";
+        const serviceReadonly = !row.level || isService(row) || isCalculated(row) ? "readonly" : "";
+        const unitValue = technicalValue ? row.unit : "";
+        const quantityValue = technicalValue ? row.quantity : "";
+        const priceValue = technicalValue ? row.price : "";
+        const totalValue = technicalValue ? formatCurrency(row.total) : "";
+        const codeValue = technicalValue ? row.code : "";
+        const sourceValue = technicalValue ? row.source : "";
+
+        return `
+          <tr class="${classForLevel(row.level)} ${selected}" data-index="${index}" style="${display}">
+            <td class="col-level${findClass(index, 0)}" data-col="0"><select class="cell-control" data-field="level">${optionMarkup(levelOptions, row.level)}</select></td>
+            <td class="col-bdi${findClass(index, 1)}" data-col="1"><select class="cell-control" data-field="bdi">${optionMarkup(bdiOptions, row.bdi)}</select></td>
+            <td class="${findClass(index, 2)}" data-col="2"><input class="cell-control item-number" value="${row.item}" readonly></td>
+            <td class="${findClass(index, 3)}" data-col="3"><input class="cell-control service-text ${serviceClass}" data-field="service" value="${escapeHtml(serviceValue)}" ${serviceReadonly}></td>
+            <td class="${findClass(index, 4)}" data-col="4"><input class="cell-control" data-field="unit" value="${escapeHtml(unitValue)}" ${technicalValue ? "" : "readonly"}></td>
+            <td class="${findClass(index, 5)}" data-col="5"><input class="cell-control number" data-field="quantity" value="${escapeHtml(quantityValue)}" ${technicalValue ? "" : "readonly"}></td>
+            <td class="${findClass(index, 6)}" data-col="6"><input class="cell-control money" data-field="price" value="${escapeHtml(priceValue)}" ${technicalValue ? "" : "readonly"}></td>
+            <td class="${findClass(index, 7)}" data-col="7"><input class="cell-control money" value="${totalValue}" readonly></td>
+            <td class="${findClass(index, 8)}" data-col="8"><input class="cell-control" data-field="code" value="${escapeHtml(codeValue)}" ${technicalValue ? "" : "readonly"}></td>
+            <td class="${findClass(index, 9)}" data-col="9"><input class="cell-control" data-field="source" value="${escapeHtml(sourceValue)}" ${technicalValue ? "" : "readonly"}></td>
+            <td class="helper${findClass(index, 10)}" data-col="10"><input class="cell-control" data-field="observation" value="${escapeHtml(row.observation)}"></td>
+            <td class="helper${findClass(index, 11)}" data-col="11"><input class="cell-control warn" value="${escapeHtml(row.check)}" readonly></td>
+          </tr>
+        `;
+      }).join("");
+      requestAnimationFrame(() => {
+        renderRowRuler(visibleRowCount);
+        syncHorizontalScrollbarSize();
+      });
+      updateSelectionHighlight();
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/"/g, "&quot;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+    }
+
+    function selectRow(index) {
+      selectedIndex = Math.max(0, Math.min(index, rows.length - 1));
+      render();
+    }
+
+    function makeSnapshot() {
+      return {
+        rows: JSON.parse(JSON.stringify(rows)),
+        selectedIndex,
+        bdiNormal: document.getElementById("bdiNormal").value,
+        bdiDif: document.getElementById("bdiDif").value,
+        totalMode: document.getElementById("totalMode").value,
+        meta: readMeta()
+      };
+    }
+
+    function restoreSnapshot(snapshot) {
+      rows = JSON.parse(JSON.stringify(snapshot.rows));
+      selectedIndex = Math.min(snapshot.selectedIndex || 0, rows.length - 1);
+      document.getElementById("bdiNormal").value = snapshot.bdiNormal || "20,47%";
+      document.getElementById("bdiDif").value = snapshot.bdiDif || "11,11%";
+      document.getElementById("totalMode").value = snapshot.totalMode || "comBdi";
+      writeMeta(snapshot.meta || {});
+      render();
+    }
+
+    function pushUndo() {
+      undoStack.push(makeSnapshot());
+      if (undoStack.length > 80) undoStack.shift();
+      redoStack = [];
+    }
+
+    function undo() {
+      if (!undoStack.length) {
+        showToast("Nada para desfazer.");
+        return;
+      }
+      redoStack.push(makeSnapshot());
+      restoreSnapshot(undoStack.pop());
+      showToast("Desfeito.");
+    }
+
+    function redo() {
+      if (!redoStack.length) {
+        showToast("Nada para refazer.");
+        return;
+      }
+      undoStack.push(makeSnapshot());
+      restoreSnapshot(redoStack.pop());
+      showToast("Refeito.");
+    }
+
+    async function writeClipboardText(text) {
+      internalClipboardText = text;
+      try {
+        if (navigator.clipboard?.writeText) {
+          await navigator.clipboard.writeText(text);
+        }
+      } catch {
+        // Fallback interno para ambientes sem permissão de área de transferência.
+      }
+    }
+
+    async function readClipboardText() {
+      try {
+        if (navigator.clipboard?.readText) {
+          const text = await navigator.clipboard.readText();
+          if (text !== "") return text;
+        }
+      } catch {
+        // Usa o último valor copiado dentro do Mensurium.
+      }
+      return internalClipboardText;
+    }
+
+    function getActiveControl() {
+      return document.activeElement?.closest?.("[data-field]") || null;
+    }
+
+    function columnName(index) {
+      let name = "";
+      let number = index + 1;
+      while (number > 0) {
+        const remainder = (number - 1) % 26;
+        name = String.fromCharCode(65 + remainder) + name;
+        number = Math.floor((number - 1) / 26);
+      }
+      return name;
+    }
+
+    function updateFormulaBar(control = getActiveControl()) {
+      if (!control) return;
+      formulaTargetControl = control;
+      const coords = getCellCoordsFromElement(control);
+      if (coords) {
+        nameBox.value = `${columnName(coords.col + 1)}${dataRowNumber(coords.row)}`;
+      }
+      formulaInput.value = control.value || "";
+      formulaInput.readOnly = control.readOnly || control.disabled;
+    }
+
+    function setCellValue(control, value) {
+      const rowEl = control.closest("tr");
+      if (!rowEl) return;
+      const index = Number(rowEl.dataset.index);
+      const field = control.dataset.field;
+      pushUndo();
+      rows[index][field] = value;
+      control.value = value;
+      updateFormulaBar(control);
+      if (field === "level") {
+        if (!value || value === "service") {
+          rows[index].service = "";
+        } else if (!rows[index].service) {
+          rows[index].service = "Digite a Descrição";
+        }
+      }
+      render();
+    }
+
+    function updateSelectionHighlight() {
+      body.querySelectorAll("tr").forEach((rowEl) => {
+        rowEl.classList.toggle("selected", Number(rowEl.dataset.index) === selectedIndex);
+      });
+      updateCellSelectionHighlight();
+    }
+
+    function getCellCoordsFromElement(element) {
+      const cell = element?.closest?.("#budgetBody td[data-col]");
+      const row = cell?.closest?.("tr");
+      if (!cell || !row) return null;
+      return {
+        row: Number(row.dataset.index),
+        col: Number(cell.dataset.col)
+      };
+    }
+
+    function getCellCoordsFromPoint(clientX, clientY) {
+      const element = document.elementFromPoint(clientX, clientY);
+      return getCellCoordsFromElement(element);
+    }
+
+    function setCellSelection(start, end = start) {
+      if (!start || !end) return;
+      cellSelection = { start, end };
+      selectedIndex = end.row;
+      updateSelectionHighlight();
+    }
+
+    function updateCellSelectionHighlight() {
+      body.querySelectorAll("td.cell-selected").forEach((cell) => {
+        cell.classList.remove("cell-selected");
+      });
+
+      if (!cellSelection) return;
+
+      const minRow = Math.min(cellSelection.start.row, cellSelection.end.row);
+      const maxRow = Math.max(cellSelection.start.row, cellSelection.end.row);
+      const minCol = Math.min(cellSelection.start.col, cellSelection.end.col);
+      const maxCol = Math.max(cellSelection.start.col, cellSelection.end.col);
+
+      body.querySelectorAll("tr").forEach((rowEl) => {
+        const rowIndex = Number(rowEl.dataset.index);
+        if (rowIndex < minRow || rowIndex > maxRow) return;
+        rowEl.querySelectorAll("td[data-col]").forEach((cell) => {
+          const colIndex = Number(cell.dataset.col);
+          if (colIndex >= minCol && colIndex <= maxCol) {
+            cell.classList.add("cell-selected");
+          }
+        });
+      });
+    }
+
+    function showFillHandle(control) {
+      if (!control || control.readOnly || control.disabled) {
+        hideFillHandle();
+        return;
+      }
+
+      const rect = control.getBoundingClientRect();
+      activeCell = {
+        row: Number(control.closest("tr").dataset.index),
+        field: control.dataset.field,
+        value: control.value
+      };
+
+      fillHandle.style.left = `${rect.right - 5}px`;
+      fillHandle.style.top = `${rect.bottom - 5}px`;
+      fillHandle.style.display = "block";
+    }
+
+    function hideFillHandle() {
+      if (fillState) return;
+      fillHandle.style.display = "none";
+    }
+
+    function clearFillTargets() {
+      body.querySelectorAll("tr.fill-target").forEach((rowEl) => {
+        rowEl.classList.remove("fill-target");
+      });
+    }
+
+    function markFillTargets(start, end) {
+      clearFillTargets();
+      const min = Math.min(start, end);
+      const max = Math.max(start, end);
+
+      body.querySelectorAll("tr").forEach((rowEl) => {
+        const index = Number(rowEl.dataset.index);
+        if (index >= min && index <= max) {
+          rowEl.classList.add("fill-target");
+        }
+      });
+    }
+
+    function getFillTargetIndex(clientX, clientY) {
+      fillHandle.style.display = "none";
+      const element = document.elementFromPoint(clientX, clientY);
+      fillHandle.style.display = "block";
+      const rowEl = element?.closest?.("#budgetBody tr");
+      return rowEl ? Number(rowEl.dataset.index) : null;
+    }
+
+    function fillValue(baseValue, offset, field) {
+      const value = String(baseValue ?? "");
+      const canContinueText = ["service", "observation"].includes(field);
+      const match = canContinueText ? value.match(/^(.*?)(\d+)$/) : null;
+
+      if (!match) return value;
+
+      const prefix = match[1];
+      const numberText = match[2];
+      const next = String(Number(numberText) + offset).padStart(numberText.length, "0");
+      return `${prefix}${next}`;
+    }
+
+    function applyFill() {
+      if (!fillState || fillState.targetRow === fillState.startRow) return;
+
+      const direction = fillState.targetRow > fillState.startRow ? 1 : -1;
+      let step = 1;
+
+      for (
+        let index = fillState.startRow + direction;
+        direction > 0 ? index <= fillState.targetRow : index >= fillState.targetRow;
+        index += direction
+      ) {
+        if (rows[index]) {
+          rows[index][fillState.field] = fillValue(fillState.value, step, fillState.field);
+          if (fillState.field === "level") {
+            if (!rows[index].level || rows[index].level === "service") {
+              rows[index].service = "";
+            } else if (!rows[index].service) {
+              rows[index].service = "Digite a Descrição";
+            }
+          }
+          step += 1;
+        }
+      }
+    }
+
+    function insertRow(offset) {
+      pushUndo();
+      const index = Math.max(0, selectedIndex + offset);
+      rows.splice(index, 0, createRow());
+      selectedIndex = index;
+      render();
+    }
+
+    function deleteRow() {
+      if (!rows.length) return;
+      pushUndo();
+      rows.splice(selectedIndex, 1);
+      if (!rows.length) rows.push(createRow());
+      selectedIndex = Math.min(selectedIndex, rows.length - 1);
+      render();
+    }
+
+    function duplicateRow() {
+      pushUndo();
+      const source = rows[selectedIndex] || createRow();
+      const copy = { ...source, id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) };
+      rows.splice(selectedIndex + 1, 0, copy);
+      selectedIndex += 1;
+      render();
+    }
+
+    function clearRow() {
+      pushUndo();
+      const level = rows[selectedIndex]?.level || "";
+      rows[selectedIndex] = createRow(level);
+      render();
+    }
+
+    function copyRow() {
+      clipboardRow = { ...rows[selectedIndex] };
+      showToast("Linha copiada.");
+    }
+
+    function pasteRow() {
+      if (!clipboardRow) {
+        showToast("Nenhuma linha copiada ainda.");
+        return;
+      }
+      pushUndo();
+      rows[selectedIndex] = { ...clipboardRow, id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) };
+      render();
+    }
+
+    function save(silent = false) {
+      const data = {
+        rows,
+        meta: readMeta(),
+        bdiNormal: document.getElementById("bdiNormal").value,
+        bdiDif: document.getElementById("bdiDif").value,
+        totalMode: document.getElementById("totalMode").value
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      if (!silent) showToast("Mensurium salvo no navegador.");
+    }
+
+    function updateAutosaveUi() {
+      autosaveToggle.classList.toggle("is-off", !autosaveEnabled);
+      autosaveToggle.setAttribute("aria-pressed", String(autosaveEnabled));
+      autosaveStatus.textContent = autosaveEnabled ? "Ligado" : "Desligado";
+      autosaveToggle.title = autosaveEnabled ? "Salvamento automático ligado" : "Salvamento automático desligado";
+    }
+
+    function updateRibbonToggleUi() {
+      const collapsed = appToolbar.classList.contains("ribbon-collapsed");
+      ribbonToggle.textContent = collapsed ? "⌄" : "⌃";
+      ribbonToggle.title = collapsed ? "Mostrar faixa" : "Recolher faixa";
+      ribbonToggle.setAttribute("aria-label", collapsed ? "Mostrar faixa" : "Recolher faixa");
+    }
+
+    function switchRibbonTab(tabName) {
+      if (!tabName) return;
+      ribbonTabs.querySelectorAll("[data-ribbon-tab]").forEach((tab) => {
+        tab.classList.toggle("active", tab.dataset.ribbonTab === tabName);
+      });
+      ribbonPanels.forEach((panel) => {
+        panel.classList.toggle("active", panel.dataset.ribbonPanel === tabName);
+      });
+    }
+
+    function toggleRibbon() {
+      appToolbar.classList.toggle("ribbon-collapsed");
+      updateRibbonToggleUi();
+    }
+
+    function toggleAutosave() {
+      autosaveEnabled = !autosaveEnabled;
+      localStorage.setItem(AUTOSAVE_KEY, autosaveEnabled ? "on" : "off");
+      updateAutosaveUi();
+      if (autosaveEnabled) {
+        scheduleAutoSave();
+        showToast("Salvamento automático ligado.");
+      } else {
+        window.clearTimeout(scheduleAutoSave.timer);
+        showToast("Salvamento automático desligado.");
+      }
+    }
+
+    function scheduleAutoSave() {
+      if (!autosaveEnabled) return;
+      window.clearTimeout(scheduleAutoSave.timer);
+      scheduleAutoSave.timer = window.setTimeout(() => save(true), 700);
+    }
+
+    function applyZoom(value, persist = true) {
+      const numericValue = Math.max(50, Math.min(130, Number(value) || 100));
+      zoomSlider.value = numericValue;
+      zoomValue.textContent = `${numericValue}%`;
+      document.documentElement.style.setProperty("--sheet-zoom", numericValue / 100);
+      if (persist) localStorage.setItem(ZOOM_KEY, String(numericValue));
+      requestAnimationFrame(() => {
+        renderRowRuler(rows.length);
+        syncHorizontalScrollbarSize();
+      });
+    }
+
+    function changeZoom(delta) {
+      applyZoom(Number(zoomSlider.value) + delta);
+    }
+
+    function load() {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (!stored) {
+        seedRows();
+        return;
+      }
+
+      try {
+        const data = JSON.parse(stored);
+        rows = Array.isArray(data.rows) && data.rows.length ? data.rows : [];
+        rows = rows.map((row) => {
+          if (row.level === "total") return createRow();
+          return { ...row, bdi: normalizeBdiValue(row.bdi) };
+        });
+        writeMeta(data.meta || {});
+        document.getElementById("bdiNormal").value = data.bdiNormal || "20,47%";
+        document.getElementById("bdiDif").value = data.bdiDif || "11,11%";
+        document.getElementById("totalMode").value = data.totalMode || "comBdi";
+        if (!rows.length) seedRows();
+      } catch {
+        seedRows();
+      }
+    }
+
+    function readMeta() {
+      return {
+        obra: document.getElementById("obra").value,
+        local: document.getElementById("local").value,
+        processo: document.getElementById("processo").value,
+        area: document.getElementById("area").value,
+        dataObra: document.getElementById("dataObra").value,
+        moeda: document.getElementById("moeda").value
+      };
+    }
+
+    function writeMeta(meta) {
+      Object.entries(meta).forEach(([key, value]) => {
+        const input = document.getElementById(key);
+        if (input) input.value = value || "";
+      });
+    }
+
+    function exportJson() {
+      const payload = JSON.stringify({ meta: readMeta(), rows }, null, 2);
+      const blob = new Blob([payload], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "mensurium-po.json";
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.style.display = "block";
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => {
+        toast.style.display = "none";
+      }, 2200);
+    }
+
+    function runAction(action, target = null) {
+      contextMenu.style.display = "none";
+      const actions = {
+        "insert-above": () => insertRow(0),
+        "insert-below": () => insertRow(1),
+        "delete": deleteRow,
+        "duplicate": duplicateRow,
+        "clear": clearRow,
+        "copy": copyRow,
+        "paste": pasteRow,
+        "undo": undo,
+        "redo": redo,
+        "toggle-level": () => { hideLevel = !hideLevel; render(); },
+        "toggle-helpers": () => { hideHelpers = !hideHelpers; render(); },
+        "toggle-aux-columns": () => {
+          const next = !(hideLevel && hideHelpers);
+          hideLevel = next;
+          hideHelpers = next;
+          render();
+        },
+        "toggle-menu": () => {
+          sideDrawer.classList.toggle("open");
+        },
+        "switch-tab-area": () => switchTabArea(target?.dataset?.tabArea),
+        "toggle-ribbon": toggleRibbon,
+        "toggle-autosave": toggleAutosave,
+        "open-sources-config": openSourcesConfig,
+        "close-sources-config": closeSourcesConfig,
+        "add-source": addOfficialSource,
+        "reset-sources": resetOfficialSources,
+        "remove-source": () => removeOfficialSource(Number(target?.dataset?.sourceIndex ?? 0)),
+        "find-next": locateNext,
+        "find-all": locateAll,
+        "zoom-out": () => changeZoom(-5),
+        "zoom-in": () => changeZoom(5),
+        "tabs-left": () => scrollTabStrip(-220),
+        "tabs-right": () => scrollTabStrip(220),
+        "save": save,
+        "export-json": exportJson
+      };
+      actions[action]?.();
+    }
+
+    body.addEventListener("input", (event) => {
+      const input = event.target.closest("[data-field]");
+      const rowEl = event.target.closest("tr");
+      if (!input || !rowEl) return;
+      const index = Number(rowEl.dataset.index);
+      const field = input.dataset.field;
+      pushUndo();
+      rows[index][field] = input.value;
+      if (activeCell && activeCell.row === index && activeCell.field === field) {
+        activeCell.value = input.value;
+      }
+      updateFormulaBar(input);
+      if (field === "level") {
+        if (!input.value || input.value === "service") {
+          rows[index].service = "";
+        } else if (!rows[index].service) {
+          rows[index].service = "Digite a Descrição";
+        }
+      }
+      if (field === "level") {
+        render();
+      } else {
+        recalc();
+      }
+      scheduleAutoSave();
+    });
+
+    body.addEventListener("change", (event) => {
+      if (event.target.closest("[data-field]")) {
+        render();
+        scheduleAutoSave();
+      }
+    });
+
+    body.addEventListener("focusin", (event) => {
+      const rowEl = event.target.closest("tr");
+      if (!rowEl) return;
+      selectedIndex = Number(rowEl.dataset.index);
+      const coords = getCellCoordsFromElement(event.target);
+      if (coords && !selectingCells) cellSelection = { start: coords, end: coords };
+      updateSelectionHighlight();
+      const control = event.target.closest(".cell-control");
+      if (control) {
+        updateFormulaBar(control);
+        showFillHandle(control);
+      }
+    });
+
+    body.addEventListener("mousedown", (event) => {
+      if (event.button !== 0 || event.target.closest("#fillHandle")) return;
+      const coords = getCellCoordsFromElement(event.target);
+      if (!coords) return;
+      selectingCells = true;
+      setCellSelection(coords);
+    });
+
+    body.addEventListener("contextmenu", (event) => {
+      const rowEl = event.target.closest("tr");
+      if (!rowEl) return;
+      event.preventDefault();
+      selectedIndex = Number(rowEl.dataset.index);
+      contextMenu.style.left = `${event.clientX}px`;
+      contextMenu.style.top = `${event.clientY}px`;
+      contextMenu.style.display = "block";
+      render();
+    });
+
+    document.addEventListener("click", (event) => {
+      const actionButton = event.target.closest("[data-action]");
+      if (actionButton) {
+        runAction(actionButton.dataset.action, actionButton);
+        return;
+      }
+      if (!event.target.closest("#contextMenu")) {
+        contextMenu.style.display = "none";
+      }
+      if (sideDrawer.classList.contains("open")
+        && !event.target.closest("#sideDrawer")
+        && !event.target.closest("[data-action='toggle-menu']")) {
+        sideDrawer.classList.remove("open");
+      }
+      if (!event.target.closest("[data-field]") && !event.target.closest("#fillHandle")) {
+        hideFillHandle();
+      }
+    });
+
+    ribbonTabs.addEventListener("click", (event) => {
+      const tab = event.target.closest("[data-ribbon-tab]");
+      if (!tab) return;
+      switchRibbonTab(tab.dataset.ribbonTab);
+    });
+
+    ribbonTabs.addEventListener("dblclick", () => {
+      toggleRibbon();
+    });
+
+    tabStrip.addEventListener("click", (event) => {
+      const tab = event.target.closest(".tab");
+      if (!tab) return;
+      activeTabLabel = tab.dataset.tabLabel || tab.textContent.trim();
+      renderTabStrip();
+      updateWorkspaceArea();
+    });
+
+    formulaInput.addEventListener("input", () => {
+      const activeControl = getActiveControl() || formulaTargetControl;
+      if (!activeControl || activeControl.readOnly || activeControl.disabled) return;
+      activeControl.value = formulaInput.value;
+      activeControl.dispatchEvent(new Event("input", { bubbles: true }));
+      scheduleAutoSave();
+    });
+
+    globalSearch.addEventListener("input", () => {
+      updateFindResults(true);
+      render();
+    });
+
+    globalSearch.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        locateNext();
+      }
+    });
+
+    tableScroll.addEventListener("scroll", () => {
+      columnRuler.style.transform = `translateX(${-tableScroll.scrollLeft}px)`;
+      syncRowRulerScroll();
+      syncFooterHorizontalScroll();
+    });
+
+    sheetHorizontalScroll.addEventListener("scroll", syncTableHorizontalScroll);
+
+    bottomSplitter.addEventListener("mousedown", beginBottomSplitterDrag);
+    bottomSplitter.addEventListener("dblclick", () => setBottomScrollWidth(280));
+
+    document.addEventListener("mousemove", moveBottomSplitter);
+    document.addEventListener("mouseup", endBottomSplitterDrag);
+
+    window.addEventListener("resize", () => {
+      syncHorizontalScrollbarSize();
+    });
+
+    zoomSlider.addEventListener("input", () => {
+      applyZoom(zoomSlider.value);
+    });
+
+    fillHandle.addEventListener("mousedown", (event) => {
+      if (!activeCell) return;
+      event.preventDefault();
+      fillState = {
+        ...activeCell,
+        startRow: activeCell.row,
+        targetRow: activeCell.row
+      };
+      markFillTargets(fillState.startRow, fillState.targetRow);
+    });
+
+    document.addEventListener("mousemove", (event) => {
+      if (selectingCells && !fillState) {
+        const coords = getCellCoordsFromPoint(event.clientX, event.clientY);
+        if (coords && cellSelection) {
+          setCellSelection(cellSelection.start, coords);
+        }
+        return;
+      }
+
+      if (!fillState) return;
+      const targetRow = getFillTargetIndex(event.clientX, event.clientY);
+      if (targetRow === null) return;
+      fillState.targetRow = targetRow;
+      markFillTargets(fillState.startRow, fillState.targetRow);
+    });
+
+    document.addEventListener("mouseup", () => {
+      if (selectingCells) {
+        selectingCells = false;
+        return;
+      }
+
+      if (!fillState) return;
+      pushUndo();
+      applyFill();
+      fillState = null;
+      clearFillTargets();
+      render();
+    });
+
+    document.getElementById("tableScroll").addEventListener("scroll", () => {
+      if (!fillState) hideFillHandle();
+    });
+
+    document.addEventListener("keydown", (event) => {
+      const key = event.key.toLowerCase();
+      const activeControl = getActiveControl();
+
+      if (event.ctrlKey && event.key.toLowerCase() === "s") {
+        event.preventDefault();
+        save();
+      }
+
+      if (event.ctrlKey && !event.shiftKey && key === "z") {
+        event.preventDefault();
+        undo();
+        return;
+      }
+
+      if ((event.ctrlKey && key === "y") || (event.ctrlKey && event.shiftKey && key === "z")) {
+        event.preventDefault();
+        redo();
+        return;
+      }
+
+      if (event.ctrlKey && key === "c") {
+        if (activeControl) {
+          const selectedText = activeControl.value.slice(activeControl.selectionStart || 0, activeControl.selectionEnd || 0);
+          writeClipboardText(selectedText || activeControl.value);
+          showToast("Célula copiada.");
+        } else {
+          copyRow();
+        }
+      }
+
+      if (event.ctrlKey && key === "v") {
+        if (activeControl) {
+          event.preventDefault();
+          readClipboardText().then((text) => setCellValue(activeControl, text));
+        } else {
+          pasteRow();
+        }
+      }
+      if (event.key === "Delete") {
+        if (activeControl) {
+          event.preventDefault();
+          setCellValue(activeControl, "");
+        } else {
+          clearRow();
+        }
+      }
+    });
+
+    ["bdiNormal", "bdiDif", "totalMode"].forEach((id) => {
+      const control = document.getElementById(id);
+      control.addEventListener("input", () => {
+        render();
+        scheduleAutoSave();
+      });
+      control.addEventListener("change", () => {
+        render();
+        scheduleAutoSave();
+      });
+    });
+
+    ["filterFonte", "filterCodigo"].forEach((id) => {
+      document.getElementById(id).addEventListener("input", render);
+      document.getElementById(id).addEventListener("change", render);
+    });
+
+    sourcesList.addEventListener("change", (event) => {
+      const input = event.target.closest("[data-source-index]");
+      if (!input) return;
+      updateOfficialSource(Number(input.dataset.sourceIndex), input.value);
+    });
+
+    newSourceName.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter") return;
+      event.preventDefault();
+      addOfficialSource();
+    });
+
+    sourcesPanel.addEventListener("click", (event) => {
+      if (event.target === sourcesPanel) closeSourcesConfig();
+    });
+
+    ["obra", "local", "processo", "area", "dataObra", "moeda"].forEach((id) => {
+      document.getElementById(id).addEventListener("input", scheduleAutoSave);
+    });
+
+    applyZoom(localStorage.getItem(ZOOM_KEY) || 100, false);
+    updateAutosaveUi();
+    updateRibbonToggleUi();
+    load();
+    render();
+  </script>
+</body>
+</html>
