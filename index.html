@@ -989,19 +989,28 @@
       width: 1220px;
     }
 
-    .sheet.show-official-table .sheet-rulers,
     .sheet.show-official-table .frozen-pane,
     .sheet.show-official-table .table-scroll {
       display: none;
     }
 
+    .sheet.show-official-table .official-table-view {
+      display: none !important;
+    }
+
     .official-table-view {
+      display: none !important;
       min-width: 1450px;
       padding: 0 14px 36px;
       background:
         linear-gradient(#e2e6eb 1px, transparent 1px) 0 0 / 100% 21px,
         linear-gradient(90deg, #e2e6eb 1px, transparent 1px) 0 0 / 88px 100%,
         #fff;
+    }
+
+    .official-table-view[hidden],
+    .sheet.show-official-table .official-grid {
+      display: none !important;
     }
 
     .official-table-view .official-head,
@@ -2638,8 +2647,10 @@
     function updateWorkspaceArea() {
       const isOfficialTable = activeTabArea === "tables";
       sheet.classList.toggle("show-official-table", isOfficialTable);
-      officialTableView.hidden = !isOfficialTable;
-      if (isOfficialTable) renderOfficialTable();
+      officialTableView.hidden = true;
+      if (isOfficialTable) {
+        requestAnimationFrame(() => renderRowRuler(rows.length));
+      }
     }
 
     function switchTabArea(area) {
