@@ -994,7 +994,7 @@
       display: none;
     }
 
-    .sheet.show-official-table .official-table-view {
+    .sheet.show-official-table:not(.show-cdhu-table) .official-table-view {
       display: none !important;
     }
 
@@ -1171,6 +1171,44 @@
       display: none;
     }
 
+      bottom: 28px;
+      overflow: auto;
+      padding: 24px 24px 48px 25px;
+      z-index: 4;
+    }
+
+    .sheet.show-cdhu-table .official-table-view .official-head {
+      display: grid;
+      width: 1428px;
+      margin-top: 42px;
+    }
+
+    .sheet.show-cdhu-table .official-table-view .official-metrics {
+      display: grid;
+    }
+
+    .sheet.show-cdhu-table .official-grid {
+      display: grid !important;
+      grid-template-columns: 0 1428px;
+      grid-template-rows: auto;
+      width: 1428px;
+      min-height: 0;
+      background: transparent;
+    }
+
+    .sheet.show-cdhu-table .official-grid::after,
+    .sheet.show-cdhu-table .official-ruler-corner,
+    .sheet.show-cdhu-table .official-column-ruler,
+    .sheet.show-cdhu-table .official-row-ruler {
+      display: none !important;
+    }
+
+    .sheet.show-cdhu-table .official-table-shell {
+      grid-column: 2;
+      grid-row: 1;
+      display: block;
+    }
+
     .official-table {
       width: 1428px;
       border-collapse: collapse;
@@ -1193,6 +1231,10 @@
       display: none;
     }
 
+    .sheet.show-cdhu-table .official-table thead {
+      display: table-header-group;
+    }
+
     .official-table th {
       height: 34px;
       background: #4472c4;
@@ -1210,6 +1252,39 @@
       color: #f00;
       text-align: center;
       font-weight: 700;
+    }
+
+    .official-table input,
+    .official-table select {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      font-weight: inherit;
+      padding: 0;
+    }
+
+    .official-table input:focus,
+    .official-table select:focus {
+      outline: 2px solid var(--green);
+      outline-offset: -2px;
+      background: #fff;
+    }
+
+    .official-table .numeric input {
+      text-align: right;
+    }
+
+    .official-table .formula-cell {
+      background: #fafafa;
+    }
+
+    .official-table .bdi-select {
+      text-align: center;
+      font-weight: 800;
     }
 
     .table-scroll {
@@ -2378,6 +2453,7 @@
     const AUTOSAVE_KEY = "mensurium.autosave";
     const GRID_LINES_KEY = "mensurium.gridLines";
     const SOURCES_KEY = "mensurium.officialSources";
+    const CDHU_ROW_COUNT = 120;
     const DEFAULT_OFFICIAL_SOURCES = [
       "CDHU",
       "CDHU INS",
@@ -2453,6 +2529,7 @@
     };
 
     let rows = [];
+    let cdhuRows = [];
     let selectedIndex = 0;
     let clipboardRow = null;
     let hideLevel = false;
@@ -2644,11 +2721,149 @@
       `).join("");
     }
 
+    function createCdhuRow(seed = {}) {
+      return {
+        id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
+        reference: "",
+        description: "",
+        unit: "",
+        material: "",
+        labor: "",
+        costTotal: "",
+        bdi11: "",
+        ...seed
+      };
+    }
+
+    function seedCdhuRows() {
+      cdhuRows = Array.from({ length: CDHU_ROW_COUNT }, () => createCdhuRow());
+    }
+
+    function normalizeCdhuRows(importedRows) {
+      return (Array.isArray(importedRows) ? importedRows : [])
+        .filter((row) => row && typeof row === "object")
+        .map((row) => createCdhuRow({
+          reference: row.reference || row.referencia || "",
+          description: row.description || row.descricao || "",
+          unit: row.unit || row.unidade || "",
+          material: row.material || "",
+          labor: row.labor || row.maoDeObra || "",
+          costTotal: row.costTotal || row.custoTotal || "",
+          bdi11: normalizeComparable(row.bdi11 || row.bdiDif || "") === "sim" ? "SIM" : ""
+        }));
+    }
+
+    function isCdhuBdiSelected(row) {
+      return normalizeComparable(row.bdi11) === "sim";
+    }
+
+    function displayFormulaValue(value) {
+      if (value === "" || value === "-" || value === "ERRO") return value;
+      return formatCurrency(value);
+    }
+
+    function cdhuUsedCount(reference) {
+      const code = String(reference || "").trim().toUpperCase();
+      if (!code) return 0;
+      return rows.filter((row) => (
+        isService(row)
+        && String(row.code || "").trim().toUpperCase() === code
+        && normalizeSourceName(row.source) === "CDHU"
+      )).length;
+    }
+
+    function calculateCdhuRow(row) {
+      const hasCost = String(row.costTotal || "").trim() !== "";
+      const costTotal = parseNumber(row.costTotal);
+      const bdiNormal = parsePercent(document.getElementById("bdiNormal").value);
+      const bdiDif = parsePercent(document.getElementById("bdiDif").value);
+      const totalMode = document.getElementById("totalMode").value;
+      const bdi11Selected = isCdhuBdiSelected(row);
+      const reajusteEnabled = false;
+      const reajusteFactor = 0;
+
+      let costBdi11 = "-";
+      if (hasCost && bdi11Selected && totalMode === "comBdi") {
+        costBdi11 = costTotal * (1 + bdiDif);
+      }
+
+      let costBdi20 = "";
+      if (hasCost && costTotal !== 0) {
+        if (totalMode === "comBdi") {
+          costBdi20 = costBdi11 !== "-" ? "-" : costTotal * (1 + bdiNormal);
+        } else if (totalMode === "comBdiSeparado") {
+          costBdi20 = "-";
+        }
+      }
+
+      let costReajuste = "";
+      if (hasCost && reajusteEnabled && reajusteFactor) {
+        if (totalMode === "comBdiSeparado") {
+          costReajuste = costTotal * reajusteFactor;
+        } else if (totalMode === "comBdi") {
+          costReajuste = (costBdi11 !== "-" ? costBdi11 : costBdi20) * reajusteFactor;
+        }
+      }
+
+      let finalCost = "";
+      if (hasCost) {
+        if (!reajusteEnabled && !bdi11Selected && totalMode === "comBdi") finalCost = costBdi20;
+        else if (reajusteEnabled && !bdi11Selected && totalMode === "comBdi") finalCost = costReajuste;
+        else if (!reajusteEnabled && bdi11Selected && totalMode === "comBdi") finalCost = costBdi11;
+        else if (reajusteEnabled && bdi11Selected && totalMode === "comBdi") finalCost = costReajuste;
+        else if (!reajusteEnabled && !bdi11Selected && totalMode === "comBdiSeparado") finalCost = costTotal;
+        else if (reajusteEnabled && !bdi11Selected && totalMode === "comBdiSeparado") finalCost = costReajuste;
+        else finalCost = "ERRO";
+      }
+
+      return {
+        costBdi20,
+        costBdi11,
+        costReajuste,
+        finalCost,
+        used: cdhuUsedCount(row.reference)
+      };
+    }
+
+    function renderCdhuTable() {
+      officialLogoText.textContent = "CDHU";
+      officialMainTitle.textContent = "BOLETIM REFERENCIAL DE CUSTOS - TABELA DE SERVIÇOS";
+      document.getElementById("officialVersion").textContent = "194";
+      document.getElementById("officialBaseDate").textContent = "MAIO/2024";
+      document.getElementById("officialBdi").textContent = "0,00%";
+      document.getElementById("officialLs").textContent = "128,23%";
+      document.getElementById("lineCount").textContent = cdhuRows.length;
+
+      officialTableBody.innerHTML = cdhuRows.map((row, index) => {
+        const calc = calculateCdhuRow(row);
+        return `
+          <tr data-cdhu-index="${index}">
+            <td><input data-cdhu-field="reference" value="${escapeHtml(row.reference)}"></td>
+            <td><input data-cdhu-field="description" value="${escapeHtml(row.description)}"></td>
+            <td><input data-cdhu-field="unit" value="${escapeHtml(row.unit)}"></td>
+            <td class="numeric"><input data-cdhu-field="material" value="${escapeHtml(row.material)}"></td>
+            <td class="numeric"><input data-cdhu-field="labor" value="${escapeHtml(row.labor)}"></td>
+            <td class="numeric"><input data-cdhu-field="costTotal" value="${escapeHtml(row.costTotal)}"></td>
+            <td class="numeric formula-cell"><input value="${displayFormulaValue(calc.costBdi20)}" readonly></td>
+            <td class="numeric formula-cell"><input value="${displayFormulaValue(calc.costBdi11)}" readonly></td>
+            <td class="numeric formula-cell"><input value="${displayFormulaValue(calc.costReajuste)}" readonly></td>
+            <td><select class="bdi-select" data-cdhu-field="bdi11"><option value=""></option><option value="SIM" ${isCdhuBdiSelected(row) ? "selected" : ""}>SIM</option></select></td>
+            <td class="numeric formula-cell"><input value="${displayFormulaValue(calc.finalCost)}" readonly></td>
+            <td class="used"><input value="${calc.used}" readonly></td>
+          </tr>
+        `;
+      }).join("");
+    }
+
     function updateWorkspaceArea() {
       const isOfficialTable = activeTabArea === "tables";
+      const isCdhuTable = isOfficialTable && activeTabLabel === "CDHU";
       sheet.classList.toggle("show-official-table", isOfficialTable);
-      officialTableView.hidden = true;
-      if (isOfficialTable) {
+      sheet.classList.toggle("show-cdhu-table", isCdhuTable);
+      officialTableView.hidden = !isCdhuTable;
+      if (isCdhuTable) {
+        requestAnimationFrame(renderCdhuTable);
+      } else if (isOfficialTable) {
         requestAnimationFrame(() => renderRowRuler(rows.length));
       }
     }
@@ -3748,6 +3963,7 @@
     function save(silent = false) {
       const data = {
         rows,
+        cdhuRows,
         meta: readMeta(),
         bdiNormal: document.getElementById("bdiNormal").value,
         bdiDif: document.getElementById("bdiDif").value,
@@ -3832,6 +4048,7 @@
       const stored = localStorage.getItem(STORAGE_KEY);
       if (!stored) {
         seedRows();
+        seedCdhuRows();
         return;
       }
 
@@ -3847,8 +4064,11 @@
         document.getElementById("bdiDif").value = data.bdiDif || "11,11%";
         document.getElementById("totalMode").value = data.totalMode || "comBdi";
         if (!rows.length) seedRows();
+        cdhuRows = normalizeCdhuRows(data.cdhuRows);
+        if (!cdhuRows.length) seedCdhuRows();
       } catch {
         seedRows();
+        seedCdhuRows();
       }
     }
 
@@ -3878,6 +4098,7 @@
         exportedAt: new Date().toISOString(),
         meta: readMeta(),
         rows,
+        cdhuRows,
         bdiNormal: document.getElementById("bdiNormal").value,
         bdiDif: document.getElementById("bdiDif").value,
         totalMode: document.getElementById("totalMode").value,
@@ -3919,6 +4140,8 @@
 
       pushUndo();
       rows = importedRows;
+      cdhuRows = normalizeCdhuRows(data.cdhuRows);
+      if (!cdhuRows.length) seedCdhuRows();
       selectedIndex = 0;
       activeCell = null;
       cellSelection = null;
@@ -4009,6 +4232,32 @@
       };
       actions[action]?.();
     }
+
+    function updateCdhuControlValue(control) {
+      const rowEl = control.closest("[data-cdhu-index]");
+      if (!rowEl) return false;
+      const index = Number(rowEl.dataset.cdhuIndex);
+      const field = control.dataset.cdhuField;
+      if (!cdhuRows[index] || !field) return false;
+      cdhuRows[index][field] = field === "bdi11"
+        ? (normalizeComparable(control.value) === "sim" ? "SIM" : "")
+        : control.value;
+      return true;
+    }
+
+    officialTableBody.addEventListener("input", (event) => {
+      const control = event.target.closest("[data-cdhu-field]");
+      if (!control) return;
+      if (updateCdhuControlValue(control)) scheduleAutoSave();
+    });
+
+    officialTableBody.addEventListener("change", (event) => {
+      const control = event.target.closest("[data-cdhu-field]");
+      if (!control) return;
+      if (!updateCdhuControlValue(control)) return;
+      renderCdhuTable();
+      scheduleAutoSave();
+    });
 
     body.addEventListener("input", (event) => {
       const input = event.target.closest("[data-field]");
