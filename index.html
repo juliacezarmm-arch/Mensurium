@@ -1019,9 +1019,9 @@
 
     .official-head {
       display: grid;
-      grid-template-columns: 220px 1fr 230px;
+      grid-template-columns: 230px 1fr 230px;
       align-items: center;
-      min-height: 132px;
+      min-height: 120px;
       margin-bottom: 8px;
     }
 
@@ -1029,7 +1029,7 @@
       position: relative;
       width: fit-content;
       color: #111;
-      font-size: 54px;
+      font-size: 64px;
       font-weight: 900;
       letter-spacing: -3px;
       line-height: 1;
@@ -1038,49 +1038,53 @@
     .official-logo::after {
       content: "";
       position: absolute;
-      right: -10px;
+      right: -12px;
       top: 5px;
-      width: 8px;
-      height: 22px;
+      width: 9px;
+      height: 26px;
       background: #e73838;
       transform: skewY(-18deg);
     }
 
     .official-title {
       display: grid;
-      gap: 8px;
+      gap: 5px;
       justify-items: center;
       text-align: center;
       font-weight: 800;
+      line-height: 1.18;
     }
 
     .official-title .agency {
       color: #2e63cf;
       font-weight: 700;
+      font-size: 13px;
     }
 
     .official-title .main {
       color: #000;
       text-transform: uppercase;
+      font-size: 13px;
     }
 
     .official-title .mode {
       color: #000;
       text-decoration: underline;
       text-transform: uppercase;
+      font-size: 13px;
     }
 
     .official-meta {
       display: grid;
-      gap: 8px;
-      align-self: end;
-      margin-bottom: 16px;
+      gap: 6px;
+      align-self: center;
+      margin-bottom: 0;
       font-weight: 800;
     }
 
     .official-meta-row {
       display: grid;
-      grid-template-columns: 88px 1fr;
+      grid-template-columns: 88px 112px;
       gap: 10px;
       align-items: center;
     }
@@ -1091,7 +1095,7 @@
 
     .official-metrics {
       width: 620px;
-      margin: 0 auto 4px;
+      margin: 0 auto;
       display: grid;
       grid-template-columns: 1fr 90px 1fr 90px;
       gap: 8px;
@@ -1104,6 +1108,33 @@
       border-bottom: 1px solid #111;
       text-align: center;
       font-style: normal;
+    }
+
+    .official-metrics .metric-label {
+      text-align: right;
+    }
+
+    .official-field {
+      width: 100%;
+      min-width: 0;
+      height: 18px;
+      border: 0;
+      border-bottom: 1px solid #111;
+      border-radius: 0;
+      background: transparent;
+      color: #000;
+      font: inherit;
+      font-style: normal;
+      font-weight: 800;
+      text-align: center;
+      outline: 0;
+      padding: 0 2px;
+    }
+
+    .official-field:focus {
+      outline: 2px solid var(--green);
+      outline-offset: -2px;
+      background: #fff;
     }
 
     .official-grid {
@@ -1177,26 +1208,33 @@
       top: 22px;
       right: 16px;
       bottom: 28px;
+      min-width: 0;
       overflow: auto;
-      padding: 24px 24px 48px 25px;
+      padding: 0 24px 48px 0;
+      background: transparent;
       z-index: 4;
     }
 
     .sheet.show-cdhu-table .official-table-view .official-head {
       display: grid;
-      width: 1428px;
-      margin-top: 42px;
+      width: 1500px;
+      height: 96px;
+      margin: 24px 0 0 25px;
+      min-height: 0;
+      margin-bottom: 0;
     }
 
     .sheet.show-cdhu-table .official-table-view .official-metrics {
       display: grid;
+      height: 24px;
+      margin-bottom: 0;
     }
 
     .sheet.show-cdhu-table .official-grid {
       display: grid !important;
-      grid-template-columns: 0 1428px;
+      grid-template-columns: 25px 1500px;
       grid-template-rows: auto;
-      width: 1428px;
+      width: 1525px;
       min-height: 0;
       background: transparent;
     }
@@ -1214,8 +1252,18 @@
       display: block;
     }
 
+    .sheet.show-cdhu-table.hide-helpers .official-table-view .official-head,
+    .sheet.show-cdhu-table.hide-helpers .official-table {
+      width: 985px;
+    }
+
+    .sheet.show-cdhu-table.hide-helpers .official-grid {
+      grid-template-columns: 25px 985px;
+      width: 1010px;
+    }
+
     .official-table {
-      width: 1428px;
+      width: 1500px;
       border-collapse: collapse;
       table-layout: fixed;
       border: 0;
@@ -1224,9 +1272,10 @@
 
     .official-table th,
     .official-table td {
-      height: 17px;
-      border: 1px solid #e2e6eb;
-      padding: 1px 5px;
+      height: 24px;
+      border: 1px solid var(--line);
+      box-sizing: border-box;
+      padding: 0 5px;
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
@@ -1241,12 +1290,23 @@
     }
 
     .official-table th {
-      height: 34px;
+      height: 54px;
       background: #4472c4;
       color: #fff;
       text-align: center;
       font-weight: 800;
+      line-height: 1.12;
       white-space: normal;
+    }
+
+    .official-table th.nowrap {
+      white-space: nowrap;
+    }
+
+    .sheet.show-cdhu-table.hide-helpers .official-table .cdhu-helper-col,
+    .sheet.show-cdhu-table.hide-helpers .official-table .cdhu-helper-cell {
+      display: none;
+      visibility: collapse;
     }
 
     .official-table td.numeric {
@@ -1420,6 +1480,22 @@
       display: none;
     }
 
+    .sheet.show-cdhu-table .sheet-grid-lines {
+      width: 1525px;
+    }
+
+    .sheet.show-cdhu-table .sheet-grid-cols {
+      grid-template-columns: 25px 100px 420px 70px 85px 105px 100px 115px 115px 120px 75px 105px 90px;
+    }
+
+    .sheet.show-cdhu-table.hide-helpers .sheet-grid-lines {
+      width: 1010px;
+    }
+
+    .sheet.show-cdhu-table.hide-helpers .sheet-grid-cols {
+      grid-template-columns: 25px 100px 420px 70px 85px 105px 100px 105px;
+    }
+
     .ruler-corner,
     .column-ruler span,
     .row-ruler-table th {
@@ -1473,6 +1549,30 @@
     .column-ruler.hide-level .col-level,
     .column-ruler.hide-level .col-bdi,
     .column-ruler.hide-helpers .helper {
+      display: none;
+    }
+
+    .sheet.show-cdhu-table .column-ruler {
+      width: 1525px;
+      grid-template-columns: 25px 100px 420px 70px 85px 105px 100px 115px 115px 120px 75px 105px 90px;
+    }
+
+    .sheet.show-cdhu-table.hide-helpers .column-ruler {
+      width: 1010px;
+      grid-template-columns: 25px 100px 420px 70px 85px 105px 100px 105px;
+    }
+
+    .sheet.show-cdhu-table .column-ruler .col-level,
+    .sheet.show-cdhu-table .column-ruler .col-bdi,
+    .sheet.show-cdhu-table .column-ruler .helper,
+    .sheet.show-cdhu-table .sheet-grid-cols .col-level,
+    .sheet.show-cdhu-table .sheet-grid-cols .col-bdi,
+    .sheet.show-cdhu-table .sheet-grid-cols .helper {
+      display: block;
+    }
+
+    .sheet.show-cdhu-table.hide-helpers .column-ruler .cdhu-helper,
+    .sheet.show-cdhu-table.hide-helpers .sheet-grid-cols .cdhu-helper {
       display: none;
     }
 
@@ -1743,14 +1843,17 @@
         inset 0 -2px 0 var(--green);
     }
 
-    .budget td.cell-selected {
+    .budget td.cell-selected,
+    .official-table td.cell-selected {
       outline: 2px solid var(--green);
       outline-offset: -2px;
       position: relative;
       z-index: 1;
     }
 
-    .budget td.cell-selected .cell-control {
+    .budget td.cell-selected .cell-control,
+    .official-table td.cell-selected input,
+    .official-table td.cell-selected select {
       background: rgba(16, 137, 76, 0.08);
     }
 
@@ -2205,12 +2308,12 @@
             <span></span>
             <span></span>
             <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
+            <span class="cdhu-helper"></span>
+            <span class="cdhu-helper"></span>
+            <span class="cdhu-helper"></span>
+            <span class="cdhu-helper"></span>
             <span class="helper"></span>
-            <span class="helper"></span>
+            <span class="helper cdhu-helper"></span>
           </div>
           <div class="sheet-grid-rows" id="sheetGridRows"></div>
         </div>
@@ -2224,12 +2327,12 @@
             <span>E</span>
             <span>F</span>
             <span>G</span>
-            <span>H</span>
-            <span>I</span>
-            <span>J</span>
-            <span>K</span>
+            <span class="cdhu-helper">H</span>
+            <span class="cdhu-helper">I</span>
+            <span class="cdhu-helper">J</span>
+            <span class="cdhu-helper">K</span>
             <span class="helper">L</span>
-            <span class="helper">M</span>
+            <span class="helper cdhu-helper">M</span>
           </div>
           <div class="row-ruler" id="rowRuler"></div>
         </div>
@@ -2338,13 +2441,13 @@
               <div class="mode">SEM DESONERAÇÃO</div>
             </div>
             <div class="official-meta">
-              <label class="official-meta-row"><span>Versão</span><strong id="officialVersion">194</strong></label>
-              <label class="official-meta-row"><span>Data Base:</span><strong id="officialBaseDate">MAIO/2024</strong></label>
+              <label class="official-meta-row"><span>Versão</span><input class="official-field" id="officialVersion" data-cdhu-meta="version" value="194"></label>
+              <label class="official-meta-row"><span>Data Base:</span><input class="official-field" id="officialBaseDate" data-cdhu-meta="baseDate" value="MAIO/2024"></label>
             </div>
           </header>
           <div class="official-metrics">
-            <span>BDI :</span><span id="officialBdi">0,00%</span>
-            <span>L.S.:</span><span id="officialLs">128,23%</span>
+            <span class="metric-label">BDI :</span><input class="official-field" id="officialBdi" data-cdhu-meta="bdi" value="0,00%">
+            <span class="metric-label">L.S.:</span><input class="official-field" id="officialLs" data-cdhu-meta="ls" value="128,23%">
           </div>
           <div class="official-grid">
             <div class="official-ruler-corner"></div>
@@ -2356,33 +2459,33 @@
             <div class="official-table-shell">
               <table class="official-table" aria-label="Tabela oficial">
                 <colgroup>
-                  <col style="width: 110px">
-                  <col style="width: 530px">
-                  <col style="width: 74px">
-                  <col style="width: 88px">
-                  <col style="width: 88px">
-                  <col style="width: 88px">
-                  <col style="width: 80px">
-                  <col style="width: 88px">
-                  <col style="width: 88px">
-                  <col style="width: 62px">
-                  <col style="width: 74px">
-                  <col style="width: 56px">
+                  <col style="width: 100px">
+                  <col style="width: 420px">
+                  <col style="width: 70px">
+                  <col style="width: 85px">
+                  <col style="width: 105px">
+                  <col style="width: 100px">
+                  <col class="cdhu-helper-col" style="width: 115px">
+                  <col class="cdhu-helper-col" style="width: 115px">
+                  <col class="cdhu-helper-col" style="width: 120px">
+                  <col class="cdhu-helper-col" style="width: 75px">
+                  <col style="width: 105px">
+                  <col class="cdhu-helper-col" style="width: 90px">
                 </colgroup>
                 <thead>
                   <tr>
-                    <th>Referência</th>
+                    <th class="nowrap">Referência</th>
                     <th>Descrição</th>
-                    <th>Unidade</th>
-                    <th>Material</th>
-                    <th>Mão de Obra</th>
-                    <th>Custo Total</th>
-                    <th>Custo Total +<br>BDI 20,47%</th>
-                    <th>Custo Total +<br>BDI 11,11%</th>
-                    <th>Custo Total +<br>BDI + Reajuste</th>
-                    <th>BDI<br>11,11% ?</th>
-                    <th>Custo Total -<br>Final</th>
-                    <th>Usado na<br>Planilha?</th>
+                    <th class="nowrap">Unidade</th>
+                    <th class="nowrap">Material</th>
+                    <th class="nowrap">Mão de Obra</th>
+                    <th class="nowrap">Custo Total</th>
+                    <th class="cdhu-helper-cell">Custo Total&nbsp;+<br>BDI 20,47%</th>
+                    <th class="cdhu-helper-cell">Custo Total&nbsp;+<br>BDI 11,11%</th>
+                    <th class="cdhu-helper-cell">Custo Total&nbsp;+<br>BDI + Reajuste</th>
+                    <th class="cdhu-helper-cell">BDI<br>11,11%?</th>
+                    <th>Custo Total<br>Final com BDI</th>
+                    <th class="cdhu-helper-cell">Usado na<br>Planilha?</th>
                   </tr>
                 </thead>
                 <tbody id="officialTableBody"></tbody>
@@ -2440,8 +2543,8 @@
   </div>
 
   <div class="context-menu" id="contextMenu" role="menu">
-    <button data-action="copy">Copiar linha</button>
-    <button data-action="paste">Colar na linha</button>
+    <button data-action="copy">Copiar</button>
+    <button data-action="paste">Colar</button>
     <button data-action="insert-above">Inserir linha acima</button>
     <button data-action="insert-below">Inserir linha abaixo</button>
     <button data-action="duplicate">Duplicar linha</button>
@@ -2459,6 +2562,12 @@
     const GRID_LINES_KEY = "mensurium.gridLines";
     const SOURCES_KEY = "mensurium.officialSources";
     const CDHU_ROW_COUNT = 120;
+    const CDHU_META_DEFAULTS = {
+      version: "194",
+      baseDate: "MAIO/2024",
+      bdi: "0,00%",
+      ls: "128,23%"
+    };
     const DEFAULT_OFFICIAL_SOURCES = [
       "CDHU",
       "CDHU INS",
@@ -2525,6 +2634,31 @@
       "check"
     ];
 
+    const cdhuColumns = [
+      "reference",
+      "description",
+      "unit",
+      "material",
+      "labor",
+      "costTotal",
+      "costBdi20",
+      "costBdi11",
+      "costReajuste",
+      "bdi11",
+      "finalCost",
+      "used"
+    ];
+
+    const cdhuEditableFields = new Set([
+      "reference",
+      "description",
+      "unit",
+      "material",
+      "labor",
+      "costTotal",
+      "bdi11"
+    ]);
+
     const catalog = {
       "CDHU|01.01.001": { descricao: "Administração local da obra", unidade: "mês", preco: 12500 },
       "CDHU|02.01.010": { descricao: "Tapume em chapa de madeira compensada", unidade: "m²", preco: 138.42 },
@@ -2536,7 +2670,9 @@
     let rows = [];
     let cdhuRows = [];
     let selectedIndex = 0;
+    let selectedCdhuIndex = 0;
     let clipboardRow = null;
+    let clipboardRowKind = "budget";
     let hideLevel = false;
     let hideHelpers = false;
     let activeCell = null;
@@ -2552,6 +2688,7 @@
     let lastNativePasteAt = 0;
     let autosaveEnabled = localStorage.getItem(AUTOSAVE_KEY) !== "off";
     let officialSources = loadOfficialSources();
+    let cdhuMeta = { ...CDHU_META_DEFAULTS };
     let activeTabArea = "documents";
     let activeTabLabel = "PO";
     let bottomSplitterDrag = null;
@@ -2583,6 +2720,10 @@
     const officialRowRuler = document.getElementById("officialRowRuler");
     const officialLogoText = document.getElementById("officialLogoText");
     const officialMainTitle = document.getElementById("officialMainTitle");
+    const officialVersion = document.getElementById("officialVersion");
+    const officialBaseDate = document.getElementById("officialBaseDate");
+    const officialBdi = document.getElementById("officialBdi");
+    const officialLs = document.getElementById("officialLs");
     const rowRuler = document.getElementById("rowRuler");
     const columnRuler = document.querySelector(".column-ruler");
     const frozenPane = document.querySelector(".frozen-pane");
@@ -2758,6 +2899,27 @@
         }));
     }
 
+    function normalizeCdhuMeta(meta = {}) {
+      return {
+        version: String(meta.version ?? CDHU_META_DEFAULTS.version),
+        baseDate: String(meta.baseDate ?? CDHU_META_DEFAULTS.baseDate),
+        bdi: String(meta.bdi ?? CDHU_META_DEFAULTS.bdi),
+        ls: String(meta.ls ?? CDHU_META_DEFAULTS.ls)
+      };
+    }
+
+    function setOfficialFieldValue(input, value) {
+      if (!input || document.activeElement === input) return;
+      input.value = value || "";
+    }
+
+    function applyCdhuMetaToHeader() {
+      setOfficialFieldValue(officialVersion, cdhuMeta.version);
+      setOfficialFieldValue(officialBaseDate, cdhuMeta.baseDate);
+      setOfficialFieldValue(officialBdi, cdhuMeta.bdi);
+      setOfficialFieldValue(officialLs, cdhuMeta.ls);
+    }
+
     function isCdhuBdiSelected(row) {
       return normalizeComparable(row.bdi11) === "sim";
     }
@@ -2833,31 +2995,35 @@
     function renderCdhuTable() {
       officialLogoText.textContent = "CDHU";
       officialMainTitle.textContent = "BOLETIM REFERENCIAL DE CUSTOS - TABELA DE SERVIÇOS";
-      document.getElementById("officialVersion").textContent = "194";
-      document.getElementById("officialBaseDate").textContent = "MAIO/2024";
-      document.getElementById("officialBdi").textContent = "0,00%";
-      document.getElementById("officialLs").textContent = "128,23%";
+      applyCdhuMetaToHeader();
       document.getElementById("lineCount").textContent = cdhuRows.length;
 
       officialTableBody.innerHTML = cdhuRows.map((row, index) => {
         const calc = calculateCdhuRow(row);
         return `
-          <tr data-cdhu-index="${index}">
-            <td><input data-cdhu-field="reference" value="${escapeHtml(row.reference)}"></td>
-            <td><input data-cdhu-field="description" value="${escapeHtml(row.description)}"></td>
-            <td><input data-cdhu-field="unit" value="${escapeHtml(row.unit)}"></td>
-            <td class="numeric"><input data-cdhu-field="material" value="${escapeHtml(row.material)}"></td>
-            <td class="numeric"><input data-cdhu-field="labor" value="${escapeHtml(row.labor)}"></td>
-            <td class="numeric"><input data-cdhu-field="costTotal" value="${escapeHtml(row.costTotal)}"></td>
-            <td class="numeric formula-cell"><input value="${displayFormulaValue(calc.costBdi20)}" readonly></td>
-            <td class="numeric formula-cell"><input value="${displayFormulaValue(calc.costBdi11)}" readonly></td>
-            <td class="numeric formula-cell"><input value="${displayFormulaValue(calc.costReajuste)}" readonly></td>
-            <td><select class="bdi-select" data-cdhu-field="bdi11"><option value=""></option><option value="SIM" ${isCdhuBdiSelected(row) ? "selected" : ""}>SIM</option></select></td>
-            <td class="numeric formula-cell"><input value="${displayFormulaValue(calc.finalCost)}" readonly></td>
-            <td class="used"><input value="${calc.used}" readonly></td>
+          <tr data-cdhu-index="${index}" class="${index === selectedCdhuIndex ? "selected" : ""}">
+            <td data-col="0"><input class="cell-control" data-cdhu-field="reference" value="${escapeHtml(row.reference)}"></td>
+            <td data-col="1"><input class="cell-control" data-cdhu-field="description" value="${escapeHtml(row.description)}"></td>
+            <td data-col="2"><input class="cell-control" data-cdhu-field="unit" value="${escapeHtml(row.unit)}"></td>
+            <td data-col="3" class="numeric"><input class="cell-control" data-cdhu-field="material" value="${escapeHtml(row.material)}"></td>
+            <td data-col="4" class="numeric"><input class="cell-control" data-cdhu-field="labor" value="${escapeHtml(row.labor)}"></td>
+            <td data-col="5" class="numeric"><input class="cell-control" data-cdhu-field="costTotal" value="${escapeHtml(row.costTotal)}"></td>
+            <td data-col="6" class="numeric formula-cell cdhu-helper-cell"><input class="cell-control" value="${displayFormulaValue(calc.costBdi20)}" readonly></td>
+            <td data-col="7" class="numeric formula-cell cdhu-helper-cell"><input class="cell-control" value="${displayFormulaValue(calc.costBdi11)}" readonly></td>
+            <td data-col="8" class="numeric formula-cell cdhu-helper-cell"><input class="cell-control" value="${displayFormulaValue(calc.costReajuste)}" readonly></td>
+            <td data-col="9" class="cdhu-helper-cell"><select class="cell-control bdi-select" data-cdhu-field="bdi11"><option value=""></option><option value="SIM" ${isCdhuBdiSelected(row) ? "selected" : ""}>SIM</option></select></td>
+            <td data-col="10" class="numeric formula-cell"><input class="cell-control" value="${displayFormulaValue(calc.finalCost)}" readonly></td>
+            <td data-col="11" class="used cdhu-helper-cell"><input class="cell-control" value="${calc.used}" readonly></td>
           </tr>
         `;
       }).join("");
+
+      updateCellSelectionHighlight();
+
+      requestAnimationFrame(() => {
+        renderRowRuler(cdhuRows.length);
+        syncHorizontalScrollbarSize();
+      });
     }
 
     function updateWorkspaceArea() {
@@ -3205,9 +3371,53 @@
     }
 
     const frozenHeaderRowNumber = 8;
+    const cdhuTableHeaderRowNumber = 7;
+    const cdhuTableHeaderHeight = 54;
+    const defaultSheetRowHeight = 24;
+
+    function isCdhuTableActive() {
+      return activeTabArea === "tables" && activeTabLabel === "CDHU";
+    }
+
+    function cdhuGridRowHeight(number) {
+      return number === cdhuTableHeaderRowNumber ? cdhuTableHeaderHeight : defaultSheetRowHeight;
+    }
+
+    function renderCdhuRowRuler() {
+      const scrollTop = officialTableView.scrollTop || 0;
+      const viewportHeight = rowRuler.clientHeight || 800;
+      const rowCount = Math.max(
+        CDHU_ROW_COUNT + cdhuTableHeaderRowNumber + 30,
+        Math.ceil((scrollTop + viewportHeight + 600) / defaultSheetRowHeight)
+      );
+      const rowsHtml = [];
+      const gridRowsHtml = [];
+
+      for (let number = 1; number <= rowCount; number += 1) {
+        const height = cdhuGridRowHeight(number);
+        rowsHtml.push(rowRulerCell(number, height));
+        gridRowsHtml.push(sheetGridRow(height));
+      }
+
+      rowRuler.innerHTML = `
+        <div class="row-ruler-scroll" style="top:0;height:${viewportHeight}px">
+          <div class="row-ruler-scroll-inner" style="transform:translateY(${-scrollTop}px)">
+            <div class="row-ruler-list" aria-hidden="true">${rowsHtml.join("")}</div>
+          </div>
+        </div>
+      `;
+
+      sheetGridRows.innerHTML = `
+        <div class="sheet-grid-row-scroll" style="top:0;height:${viewportHeight}px">
+          <div class="sheet-grid-row-scroll-inner" style="transform:translateY(${-scrollTop}px)">
+            <div class="sheet-grid-row-list" aria-hidden="true">${gridRowsHtml.join("")}</div>
+          </div>
+        </div>
+      `;
+    }
 
     function tableHeaderMetrics() {
-      const fallbackRowHeight = 24;
+      const fallbackRowHeight = defaultSheetRowHeight;
       const headerHeight = 34;
       const regularRowHeight = fallbackRowHeight;
       const top = (frozenHeaderRowNumber - 1) * regularRowHeight;
@@ -3231,6 +3441,11 @@
     }
 
     function renderRowRuler(visibleRowCount) {
+      if (isCdhuTableActive()) {
+        renderCdhuRowRuler();
+        return;
+      }
+
       const { top: headerTop, height: headerHeight, regularRowHeight, number: headerNumber } = tableHeaderMetrics();
       const frozenRowsHtml = [];
       const scrollRowsHtml = [];
@@ -3309,23 +3524,30 @@
       tabStrip.scrollBy({ left: delta, behavior: "smooth" });
     }
 
+    function activeSheetScrollTarget() {
+      return isCdhuTableActive() ? officialTableView : tableScroll;
+    }
+
     function syncHorizontalScrollbarSize() {
-      const scrollWidth = Math.max(tableScroll.scrollWidth, tableScroll.clientWidth);
+      const target = activeSheetScrollTarget();
+      const scrollWidth = Math.max(target.scrollWidth, target.clientWidth);
       sheetHorizontalSpace.style.width = `${scrollWidth}px`;
-      if (sheetHorizontalScroll.scrollLeft !== tableScroll.scrollLeft) {
-        sheetHorizontalScroll.scrollLeft = tableScroll.scrollLeft;
+      if (sheetHorizontalScroll.scrollLeft !== target.scrollLeft) {
+        sheetHorizontalScroll.scrollLeft = target.scrollLeft;
       }
     }
 
     function syncTableHorizontalScroll() {
-      if (tableScroll.scrollLeft !== sheetHorizontalScroll.scrollLeft) {
-        tableScroll.scrollLeft = sheetHorizontalScroll.scrollLeft;
+      const target = activeSheetScrollTarget();
+      if (target.scrollLeft !== sheetHorizontalScroll.scrollLeft) {
+        target.scrollLeft = sheetHorizontalScroll.scrollLeft;
       }
     }
 
     function syncFooterHorizontalScroll() {
-      if (sheetHorizontalScroll.scrollLeft !== tableScroll.scrollLeft) {
-        sheetHorizontalScroll.scrollLeft = tableScroll.scrollLeft;
+      const target = activeSheetScrollTarget();
+      if (sheetHorizontalScroll.scrollLeft !== target.scrollLeft) {
+        sheetHorizontalScroll.scrollLeft = target.scrollLeft;
       }
     }
 
@@ -3442,7 +3664,10 @@
     function makeSnapshot() {
       return {
         rows: JSON.parse(JSON.stringify(rows)),
+        cdhuRows: JSON.parse(JSON.stringify(cdhuRows)),
+        cdhuMeta: { ...cdhuMeta },
         selectedIndex,
+        selectedCdhuIndex,
         bdiNormal: document.getElementById("bdiNormal").value,
         bdiDif: document.getElementById("bdiDif").value,
         totalMode: document.getElementById("totalMode").value,
@@ -3452,7 +3677,12 @@
 
     function restoreSnapshot(snapshot) {
       rows = JSON.parse(JSON.stringify(snapshot.rows));
+      cdhuRows = JSON.parse(JSON.stringify(snapshot.cdhuRows || cdhuRows));
+      cdhuMeta = { ...CDHU_META_DEFAULTS, ...(snapshot.cdhuMeta || cdhuMeta) };
+      if (!rows.length) rows.push(createRow());
+      if (!cdhuRows.length) cdhuRows.push(createCdhuRow());
       selectedIndex = Math.min(snapshot.selectedIndex || 0, rows.length - 1);
+      selectedCdhuIndex = Math.min(snapshot.selectedCdhuIndex || 0, cdhuRows.length - 1);
       document.getElementById("bdiNormal").value = snapshot.bdiNormal || "20,47%";
       document.getElementById("bdiDif").value = snapshot.bdiDif || "11,11%";
       document.getElementById("totalMode").value = snapshot.totalMode || "comBdi";
@@ -3510,7 +3740,29 @@
     }
 
     function getActiveControl() {
-      return document.activeElement?.closest?.("[data-field]") || null;
+      return document.activeElement?.closest?.("#budgetBody [data-field], #officialTableBody input, #officialTableBody select") || null;
+    }
+
+    function getActiveSheetKind(control = getActiveControl()) {
+      if (control?.closest?.("#officialTableBody")) return "cdhu";
+      if (control?.closest?.("#budgetBody")) return "budget";
+      return isCdhuTableActive() ? "cdhu" : "budget";
+    }
+
+    function getColumnsForSheet(sheetKind) {
+      return sheetKind === "cdhu" ? cdhuColumns : budgetColumns;
+    }
+
+    function getRowsForSheet(sheetKind) {
+      return sheetKind === "cdhu" ? cdhuRows : rows;
+    }
+
+    function renderActiveGrid(sheetKind) {
+      if (sheetKind === "cdhu") {
+        renderCdhuTable();
+        return;
+      }
+      render();
     }
 
     function normalizeComparable(value) {
@@ -3554,9 +3806,18 @@
       return String(value ?? "");
     }
 
+    function normalizeCdhuClipboardValue(field, value) {
+      const raw = String(value ?? "").trim();
+      if (field === "bdi11") return normalizeComparable(raw) === "sim" ? "SIM" : "";
+      return String(value ?? "");
+    }
+
     function getSelectionBounds(selection = cellSelection) {
       if (!selection) return null;
+      const sheetKind = selection.start.sheet || "budget";
+      if ((selection.end.sheet || sheetKind) !== sheetKind) return null;
       return {
+        sheet: sheetKind,
         minRow: Math.min(selection.start.row, selection.end.row),
         maxRow: Math.max(selection.start.row, selection.end.row),
         minCol: Math.min(selection.start.col, selection.end.col),
@@ -3569,12 +3830,36 @@
       return !!bounds && (bounds.minRow !== bounds.maxRow || bounds.minCol !== bounds.maxCol);
     }
 
-    function getCellControl(rowIndex, colIndex) {
+    function getCellControl(rowIndex, colIndex, sheetKind = getActiveSheetKind()) {
+      if (sheetKind === "cdhu") {
+        return officialTableBody.querySelector(
+          `[data-cdhu-index="${rowIndex}"] td[data-col="${colIndex}"] input, ` +
+          `[data-cdhu-index="${rowIndex}"] td[data-col="${colIndex}"] select`
+        );
+      }
       return body.querySelector(`tr[data-index="${rowIndex}"] td[data-col="${colIndex}"] .cell-control`);
     }
 
-    function getCellDisplayValue(rowIndex, colIndex) {
-      const control = getCellControl(rowIndex, colIndex);
+    function getCdhuCellDisplayValue(rowIndex, colIndex) {
+      const control = getCellControl(rowIndex, colIndex, "cdhu");
+      if (control) return control.value ?? "";
+      const row = cdhuRows[rowIndex];
+      if (!row) return "";
+      const calc = calculateCdhuRow(row);
+      const field = cdhuColumns[colIndex];
+      const formulas = {
+        costBdi20: displayFormulaValue(calc.costBdi20),
+        costBdi11: displayFormulaValue(calc.costBdi11),
+        costReajuste: displayFormulaValue(calc.costReajuste),
+        finalCost: displayFormulaValue(calc.finalCost),
+        used: String(calc.used)
+      };
+      return Object.prototype.hasOwnProperty.call(formulas, field) ? formulas[field] : row[field] ?? "";
+    }
+
+    function getCellDisplayValue(rowIndex, colIndex, sheetKind = "budget") {
+      if (sheetKind === "cdhu") return getCdhuCellDisplayValue(rowIndex, colIndex);
+      const control = getCellControl(rowIndex, colIndex, "budget");
       if (control) return control.value ?? "";
       const field = budgetColumns[colIndex];
       return field ? rows[rowIndex]?.[field] ?? "" : "";
@@ -3585,7 +3870,7 @@
       for (let rowIndex = bounds.minRow; rowIndex <= bounds.maxRow; rowIndex += 1) {
         const cells = [];
         for (let colIndex = bounds.minCol; colIndex <= bounds.maxCol; colIndex += 1) {
-          cells.push(getCellDisplayValue(rowIndex, colIndex));
+          cells.push(getCellDisplayValue(rowIndex, colIndex, bounds.sheet));
         }
         lines.push(cells.join("\t"));
       }
@@ -3606,6 +3891,10 @@
       return false;
     }
 
+    function canPasteCdhuField(field) {
+      return cdhuEditableFields.has(field);
+    }
+
     function applyCellSideEffects(rowIndex, field) {
       const row = rows[rowIndex];
       if (!row || field !== "level") return;
@@ -3616,9 +3905,20 @@
       }
     }
 
-    function setCellByCoords(rowIndex, colIndex, value) {
+    function setCellByCoords(rowIndex, colIndex, value, sheetKind = "budget") {
+      if (sheetKind === "cdhu") {
+        if (!cdhuRows[rowIndex]) return false;
+        const control = getCellControl(rowIndex, colIndex, "cdhu");
+        const field = control?.dataset?.cdhuField || cdhuColumns[colIndex];
+        if (!canPasteCdhuField(field)) return false;
+        const nextValue = normalizeCdhuClipboardValue(field, value);
+        cdhuRows[rowIndex][field] = nextValue;
+        if (control && "value" in control) control.value = nextValue;
+        return true;
+      }
+
       if (!rows[rowIndex]) return false;
-      const control = getCellControl(rowIndex, colIndex);
+      const control = getCellControl(rowIndex, colIndex, "budget");
       const field = control?.dataset?.field || budgetColumns[colIndex];
       if (!canPasteField(rows[rowIndex], field)) return false;
       const nextValue = normalizeClipboardValue(field, value);
@@ -3631,7 +3931,10 @@
     function copySelectedCells() {
       const activeControl = getActiveControl();
       const activeCoords = getCellCoordsFromElement(activeControl);
-      const bounds = getSelectionBounds() || (activeCoords ? {
+      const activeSheet = activeCoords?.sheet || getActiveSheetKind(activeControl);
+      const currentBounds = getSelectionBounds();
+      const bounds = (currentBounds && currentBounds.sheet === activeSheet ? currentBounds : null) || (activeCoords ? {
+        sheet: activeCoords.sheet,
         minRow: activeCoords.row,
         maxRow: activeCoords.row,
         minCol: activeCoords.col,
@@ -3651,7 +3954,10 @@
       if (text === undefined || text === null) return;
       const matrix = parseClipboardMatrix(text);
       const activeCoords = getCellCoordsFromElement(activeControl);
-      const bounds = getSelectionBounds() || (activeCoords ? {
+      const activeSheet = activeCoords?.sheet || getActiveSheetKind(activeControl);
+      const currentBounds = getSelectionBounds();
+      const bounds = (currentBounds && currentBounds.sheet === activeSheet ? currentBounds : null) || (activeCoords ? {
+        sheet: activeCoords.sheet,
         minRow: activeCoords.row,
         maxRow: activeCoords.row,
         minCol: activeCoords.col,
@@ -3664,14 +3970,17 @@
       }
 
       const oneValue = matrix.length === 1 && matrix[0].length === 1;
+      const sheetKind = bounds.sheet || getActiveSheetKind(activeControl);
+      const targetRows = getRowsForSheet(sheetKind);
+      const columns = getColumnsForSheet(sheetKind);
       const matrixRows = oneValue ? (bounds.maxRow - bounds.minRow + 1) : matrix.length;
       const matrixCols = oneValue
         ? (bounds.maxCol - bounds.minCol + 1)
         : Math.max(...matrix.map((line) => line.length));
 
       pushUndo();
-      while (rows.length < bounds.minRow + matrixRows) {
-        rows.push(createRow());
+      while (targetRows.length < bounds.minRow + matrixRows) {
+        targetRows.push(sheetKind === "cdhu" ? createCdhuRow() : createRow());
       }
 
       let changed = 0;
@@ -3680,7 +3989,7 @@
           const sourceRow = oneValue ? 0 : rowOffset;
           const sourceCol = oneValue ? 0 : colOffset;
           const value = matrix[sourceRow]?.[sourceCol] ?? "";
-          if (setCellByCoords(bounds.minRow + rowOffset, bounds.minCol + colOffset, value)) {
+          if (setCellByCoords(bounds.minRow + rowOffset, bounds.minCol + colOffset, value, sheetKind)) {
             changed += 1;
           }
         }
@@ -3693,12 +4002,17 @@
       }
 
       const end = {
-        row: Math.min(rows.length - 1, bounds.minRow + matrixRows - 1),
-        col: Math.min(budgetColumns.length - 1, bounds.minCol + matrixCols - 1)
+        sheet: sheetKind,
+        row: Math.min(targetRows.length - 1, bounds.minRow + matrixRows - 1),
+        col: Math.min(columns.length - 1, bounds.minCol + matrixCols - 1)
       };
-      cellSelection = { start: { row: bounds.minRow, col: bounds.minCol }, end };
-      selectedIndex = end.row;
-      render();
+      cellSelection = { start: { sheet: sheetKind, row: bounds.minRow, col: bounds.minCol }, end };
+      if (sheetKind === "cdhu") {
+        selectedCdhuIndex = end.row;
+      } else {
+        selectedIndex = end.row;
+      }
+      renderActiveGrid(sheetKind);
       scheduleAutoSave();
       showToast(changed > 1 ? "Células coladas." : "Célula colada.");
     }
@@ -3709,7 +4023,10 @@
 
     function clearSelectedCells() {
       const activeCoords = getCellCoordsFromElement(getActiveControl());
-      const bounds = getSelectionBounds() || (activeCoords ? {
+      const activeSheet = activeCoords?.sheet || getActiveSheetKind();
+      const currentBounds = getSelectionBounds();
+      const bounds = (currentBounds && currentBounds.sheet === activeSheet ? currentBounds : null) || (activeCoords ? {
+        sheet: activeCoords.sheet,
         minRow: activeCoords.row,
         maxRow: activeCoords.row,
         minCol: activeCoords.col,
@@ -3724,14 +4041,14 @@
       let changed = 0;
       for (let rowIndex = bounds.minRow; rowIndex <= bounds.maxRow; rowIndex += 1) {
         for (let colIndex = bounds.minCol; colIndex <= bounds.maxCol; colIndex += 1) {
-          if (setCellByCoords(rowIndex, colIndex, "")) changed += 1;
+          if (setCellByCoords(rowIndex, colIndex, "", bounds.sheet)) changed += 1;
         }
       }
       if (!changed) {
         undoStack.pop();
         return;
       }
-      render();
+      renderActiveGrid(bounds.sheet);
       scheduleAutoSave();
     }
 
@@ -3751,7 +4068,9 @@
       formulaTargetControl = control;
       const coords = getCellCoordsFromElement(control);
       if (coords) {
-        nameBox.value = `${columnName(coords.col + 1)}${dataRowNumber(coords.row)}`;
+        const rowNumber = coords.sheet === "cdhu" ? coords.row + 1 : dataRowNumber(coords.row);
+        const colNumber = coords.sheet === "cdhu" ? coords.col : coords.col + 1;
+        nameBox.value = `${columnName(colNumber)}${rowNumber}`;
       }
       formulaInput.value = control.value || "";
       formulaInput.readOnly = control.readOnly || control.disabled;
@@ -3760,6 +4079,18 @@
     function setCellValue(control, value) {
       const rowEl = control.closest("tr");
       if (!rowEl) return;
+      if (control.dataset.cdhuField) {
+        const index = Number(rowEl.dataset.cdhuIndex);
+        const field = control.dataset.cdhuField;
+        if (!cdhuRows[index] || !canPasteCdhuField(field)) return;
+        pushUndo();
+        cdhuRows[index][field] = normalizeCdhuClipboardValue(field, value);
+        control.value = cdhuRows[index][field];
+        updateFormulaBar(control);
+        renderCdhuTable();
+        scheduleAutoSave();
+        return;
+      }
       const index = Number(rowEl.dataset.index);
       const field = control.dataset.field;
       pushUndo();
@@ -3780,14 +4111,28 @@
       body.querySelectorAll("tr").forEach((rowEl) => {
         rowEl.classList.toggle("selected", Number(rowEl.dataset.index) === selectedIndex);
       });
+      officialTableBody.querySelectorAll("tr").forEach((rowEl) => {
+        rowEl.classList.toggle("selected", Number(rowEl.dataset.cdhuIndex) === selectedCdhuIndex);
+      });
       updateCellSelectionHighlight();
     }
 
     function getCellCoordsFromElement(element) {
+      const cdhuCell = element?.closest?.("#officialTableBody td[data-col]");
+      const cdhuRow = cdhuCell?.closest?.("[data-cdhu-index]");
+      if (cdhuCell && cdhuRow) {
+        return {
+          sheet: "cdhu",
+          row: Number(cdhuRow.dataset.cdhuIndex),
+          col: Number(cdhuCell.dataset.col)
+        };
+      }
+
       const cell = element?.closest?.("#budgetBody td[data-col]");
       const row = cell?.closest?.("tr");
       if (!cell || !row) return null;
       return {
+        sheet: "budget",
         row: Number(row.dataset.index),
         col: Number(cell.dataset.col)
       };
@@ -3800,8 +4145,14 @@
 
     function setCellSelection(start, end = start) {
       if (!start || !end) return;
+      const sheetKind = start.sheet || "budget";
+      if ((end.sheet || sheetKind) !== sheetKind) return;
       cellSelection = { start, end };
-      selectedIndex = end.row;
+      if (sheetKind === "cdhu") {
+        selectedCdhuIndex = end.row;
+      } else {
+        selectedIndex = end.row;
+      }
       updateSelectionHighlight();
     }
 
@@ -3809,20 +4160,24 @@
       body.querySelectorAll("td.cell-selected").forEach((cell) => {
         cell.classList.remove("cell-selected");
       });
+      officialTableBody.querySelectorAll("td.cell-selected").forEach((cell) => {
+        cell.classList.remove("cell-selected");
+      });
 
       if (!cellSelection) return;
 
-      const minRow = Math.min(cellSelection.start.row, cellSelection.end.row);
-      const maxRow = Math.max(cellSelection.start.row, cellSelection.end.row);
-      const minCol = Math.min(cellSelection.start.col, cellSelection.end.col);
-      const maxCol = Math.max(cellSelection.start.col, cellSelection.end.col);
+      const bounds = getSelectionBounds();
+      if (!bounds) return;
+      const targetBody = bounds.sheet === "cdhu" ? officialTableBody : body;
+      const rowSelector = bounds.sheet === "cdhu" ? "[data-cdhu-index]" : "tr";
+      const rowAttribute = bounds.sheet === "cdhu" ? "cdhuIndex" : "index";
 
-      body.querySelectorAll("tr").forEach((rowEl) => {
-        const rowIndex = Number(rowEl.dataset.index);
-        if (rowIndex < minRow || rowIndex > maxRow) return;
+      targetBody.querySelectorAll(rowSelector).forEach((rowEl) => {
+        const rowIndex = Number(rowEl.dataset[rowAttribute]);
+        if (rowIndex < bounds.minRow || rowIndex > bounds.maxRow) return;
         rowEl.querySelectorAll("td[data-col]").forEach((cell) => {
           const colIndex = Number(cell.dataset.col);
-          if (colIndex >= minCol && colIndex <= maxCol) {
+          if (colIndex >= bounds.minCol && colIndex <= bounds.maxCol) {
             cell.classList.add("cell-selected");
           }
         });
@@ -3830,7 +4185,7 @@
     }
 
     function showFillHandle(control) {
-      if (!control || control.readOnly || control.disabled) {
+      if (!control || control.readOnly || control.disabled || !control.dataset.field) {
         hideFillHandle();
         return;
       }
@@ -3918,6 +4273,17 @@
     }
 
     function insertRow(offset) {
+      if (getActiveSheetKind() === "cdhu") {
+        pushUndo();
+        const index = Math.max(0, selectedCdhuIndex + offset);
+        cdhuRows.splice(index, 0, createCdhuRow());
+        selectedCdhuIndex = index;
+        cellSelection = { start: { sheet: "cdhu", row: index, col: 0 }, end: { sheet: "cdhu", row: index, col: 0 } };
+        renderCdhuTable();
+        scheduleAutoSave();
+        return;
+      }
+
       pushUndo();
       const index = Math.max(0, selectedIndex + offset);
       rows.splice(index, 0, createRow());
@@ -3926,6 +4292,18 @@
     }
 
     function deleteRow() {
+      if (getActiveSheetKind() === "cdhu") {
+        if (!cdhuRows.length) return;
+        pushUndo();
+        cdhuRows.splice(selectedCdhuIndex, 1);
+        if (!cdhuRows.length) cdhuRows.push(createCdhuRow());
+        selectedCdhuIndex = Math.min(selectedCdhuIndex, cdhuRows.length - 1);
+        cellSelection = { start: { sheet: "cdhu", row: selectedCdhuIndex, col: 0 }, end: { sheet: "cdhu", row: selectedCdhuIndex, col: 0 } };
+        renderCdhuTable();
+        scheduleAutoSave();
+        return;
+      }
+
       if (!rows.length) return;
       pushUndo();
       rows.splice(selectedIndex, 1);
@@ -3935,6 +4313,17 @@
     }
 
     function duplicateRow() {
+      if (getActiveSheetKind() === "cdhu") {
+        pushUndo();
+        const source = cdhuRows[selectedCdhuIndex] || createCdhuRow();
+        cdhuRows.splice(selectedCdhuIndex + 1, 0, { ...source });
+        selectedCdhuIndex += 1;
+        cellSelection = { start: { sheet: "cdhu", row: selectedCdhuIndex, col: 0 }, end: { sheet: "cdhu", row: selectedCdhuIndex, col: 0 } };
+        renderCdhuTable();
+        scheduleAutoSave();
+        return;
+      }
+
       pushUndo();
       const source = rows[selectedIndex] || createRow();
       const copy = { ...source, id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) };
@@ -3944,6 +4333,14 @@
     }
 
     function clearRow() {
+      if (getActiveSheetKind() === "cdhu") {
+        pushUndo();
+        cdhuRows[selectedCdhuIndex] = createCdhuRow();
+        renderCdhuTable();
+        scheduleAutoSave();
+        return;
+      }
+
       pushUndo();
       const level = rows[selectedIndex]?.level || "";
       rows[selectedIndex] = createRow(level);
@@ -3951,13 +4348,37 @@
     }
 
     function copyRow() {
+      if (getActiveSheetKind() === "cdhu") {
+        clipboardRow = { ...(cdhuRows[selectedCdhuIndex] || createCdhuRow()) };
+        clipboardRowKind = "cdhu";
+        showToast("Linha copiada.");
+        return;
+      }
+
       clipboardRow = { ...rows[selectedIndex] };
+      clipboardRowKind = "budget";
       showToast("Linha copiada.");
     }
 
     function pasteRow() {
       if (!clipboardRow) {
         showToast("Nenhuma linha copiada ainda.");
+        return;
+      }
+      if (getActiveSheetKind() === "cdhu") {
+        if (clipboardRowKind !== "cdhu") {
+          showToast("A linha copiada pertence a outra tabela.");
+          return;
+        }
+        pushUndo();
+        cdhuRows[selectedCdhuIndex] = { ...clipboardRow };
+        renderCdhuTable();
+        scheduleAutoSave();
+        return;
+      }
+
+      if (clipboardRowKind !== "budget") {
+        showToast("A linha copiada pertence a outra tabela.");
         return;
       }
       pushUndo();
@@ -3969,6 +4390,7 @@
       const data = {
         rows,
         cdhuRows,
+        cdhuMeta,
         meta: readMeta(),
         bdiNormal: document.getElementById("bdiNormal").value,
         bdiDif: document.getElementById("bdiDif").value,
@@ -4054,6 +4476,7 @@
       if (!stored) {
         seedRows();
         seedCdhuRows();
+        cdhuMeta = normalizeCdhuMeta();
         return;
       }
 
@@ -4071,9 +4494,11 @@
         if (!rows.length) seedRows();
         cdhuRows = normalizeCdhuRows(data.cdhuRows);
         if (!cdhuRows.length) seedCdhuRows();
+        cdhuMeta = normalizeCdhuMeta(data.cdhuMeta);
       } catch {
         seedRows();
         seedCdhuRows();
+        cdhuMeta = normalizeCdhuMeta();
       }
     }
 
@@ -4104,6 +4529,7 @@
         meta: readMeta(),
         rows,
         cdhuRows,
+        cdhuMeta,
         bdiNormal: document.getElementById("bdiNormal").value,
         bdiDif: document.getElementById("bdiDif").value,
         totalMode: document.getElementById("totalMode").value,
@@ -4147,6 +4573,7 @@
       rows = importedRows;
       cdhuRows = normalizeCdhuRows(data.cdhuRows);
       if (!cdhuRows.length) seedCdhuRows();
+      cdhuMeta = normalizeCdhuMeta(data.cdhuMeta);
       selectedIndex = 0;
       activeCell = null;
       cellSelection = null;
@@ -4201,7 +4628,7 @@
         "insert-below": () => insertRow(1),
         "delete": deleteRow,
         "duplicate": duplicateRow,
-        "clear": clearRow,
+        "clear": clearSelectedCells,
         "copy": copySelectedCells,
         "paste": pasteFromClipboard,
         "undo": undo,
@@ -4250,18 +4677,65 @@
       return true;
     }
 
+    function updateCdhuMetaControlValue(control) {
+      const field = control.dataset.cdhuMeta;
+      if (!Object.prototype.hasOwnProperty.call(CDHU_META_DEFAULTS, field)) return false;
+      cdhuMeta[field] = control.value;
+      return true;
+    }
+
+    officialTableView.addEventListener("input", (event) => {
+      const control = event.target.closest("[data-cdhu-meta]");
+      if (!control) return;
+      if (updateCdhuMetaControlValue(control)) scheduleAutoSave();
+    });
+
     officialTableBody.addEventListener("input", (event) => {
       const control = event.target.closest("[data-cdhu-field]");
       if (!control) return;
+      pushUndo();
       if (updateCdhuControlValue(control)) scheduleAutoSave();
     });
 
     officialTableBody.addEventListener("change", (event) => {
       const control = event.target.closest("[data-cdhu-field]");
       if (!control) return;
+      if (control.tagName === "SELECT") pushUndo();
       if (!updateCdhuControlValue(control)) return;
       renderCdhuTable();
       scheduleAutoSave();
+    });
+
+    officialTableBody.addEventListener("focusin", (event) => {
+      const rowEl = event.target.closest("[data-cdhu-index]");
+      if (!rowEl) return;
+      selectedCdhuIndex = Number(rowEl.dataset.cdhuIndex);
+      const coords = getCellCoordsFromElement(event.target);
+      if (coords && !selectingCells) cellSelection = { start: coords, end: coords };
+      updateSelectionHighlight();
+      const control = event.target.closest(".cell-control");
+      if (control) updateFormulaBar(control);
+    });
+
+    officialTableBody.addEventListener("mousedown", (event) => {
+      if (event.button !== 0) return;
+      const coords = getCellCoordsFromElement(event.target);
+      if (!coords) return;
+      selectingCells = true;
+      setCellSelection(coords);
+    });
+
+    officialTableBody.addEventListener("contextmenu", (event) => {
+      const rowEl = event.target.closest("[data-cdhu-index]");
+      if (!rowEl) return;
+      event.preventDefault();
+      selectedCdhuIndex = Number(rowEl.dataset.cdhuIndex);
+      const coords = getCellCoordsFromElement(event.target);
+      if (coords) cellSelection = { start: coords, end: coords };
+      updateSelectionHighlight();
+      contextMenu.style.left = `${event.clientX}px`;
+      contextMenu.style.top = `${event.clientY}px`;
+      contextMenu.style.display = "block";
     });
 
     body.addEventListener("input", (event) => {
@@ -4325,6 +4799,8 @@
       if (!rowEl) return;
       event.preventDefault();
       selectedIndex = Number(rowEl.dataset.index);
+      const coords = getCellCoordsFromElement(event.target);
+      if (coords) cellSelection = { start: coords, end: coords };
       contextMenu.style.left = `${event.clientX}px`;
       contextMenu.style.top = `${event.clientY}px`;
       contextMenu.style.display = "block";
@@ -4398,6 +4874,13 @@
       syncFooterHorizontalScroll();
     });
 
+    officialTableView.addEventListener("scroll", () => {
+      if (!isCdhuTableActive()) return;
+      columnRuler.style.transform = `translateX(${-officialTableView.scrollLeft}px)`;
+      syncRowRulerScroll();
+      syncFooterHorizontalScroll();
+    });
+
     sheetHorizontalScroll.addEventListener("scroll", syncTableHorizontalScroll);
 
     bottomSplitter.addEventListener("mousedown", beginBottomSplitterDrag);
@@ -4462,8 +4945,9 @@
     document.addEventListener("paste", (event) => {
       const activeControl = getActiveControl();
       const outsideSheetEditable = !!event.target.closest?.("input, textarea, select")
-        && !event.target.closest?.("#budgetTable");
+        && !event.target.closest?.("#budgetTable, #officialTableBody");
       const inBudget = event.target.closest?.("#budgetTable")
+        || event.target.closest?.("#officialTableBody")
         || activeControl
         || (!!cellSelection && !outsideSheetEditable);
       if (!inBudget) return;
@@ -4482,9 +4966,10 @@
       const key = event.key.toLowerCase();
       const activeControl = getActiveControl();
       const outsideSheetEditable = !!event.target.closest?.("input, textarea, select")
-        && !event.target.closest?.("#budgetTable");
+        && !event.target.closest?.("#budgetTable, #officialTableBody");
       const sheetShortcutTarget = !!activeControl
         || !!event.target.closest?.("#budgetTable")
+        || !!event.target.closest?.("#officialTableBody")
         || (!!cellSelection && !outsideSheetEditable);
 
       if (event.ctrlKey && event.key.toLowerCase() === "s") {
