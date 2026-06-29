@@ -62,6 +62,15 @@
       background: var(--bar);
     }
 
+    body.backstage-open .titlebar {
+      gap: 0;
+      padding-right: 0;
+    }
+
+    body.backstage-open .titlebar > :not(.brand-corner) {
+      display: none;
+    }
+
     .quick-access {
       display: inline-flex;
       align-items: center;
@@ -257,6 +266,172 @@
       display: flex;
     }
 
+    .backstage {
+      position: fixed;
+      inset: 42px 0 0 0;
+      z-index: 80;
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      background: #f5f6f8;
+      color: #20242a;
+    }
+
+    .backstage[hidden] {
+      display: none;
+    }
+
+    .backstage-sidebar {
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 14px;
+      padding: 12px 0;
+      background: #f0f1f3;
+      border-right: 1px solid #d8dce2;
+    }
+
+    .backstage-back {
+      width: 34px;
+      height: 34px;
+      margin-left: 12px;
+      border: 1px solid #c8ccd2;
+      border-radius: 50%;
+      background: #fff;
+      cursor: pointer;
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .backstage-nav,
+    .backstage-footer {
+      display: grid;
+      gap: 2px;
+    }
+
+    .backstage-nav button,
+    .backstage-footer button {
+      min-height: 38px;
+      padding: 0 16px;
+      border: 0;
+      border-left: 3px solid transparent;
+      background: transparent;
+      text-align: left;
+      cursor: pointer;
+      color: #23272f;
+    }
+
+    .backstage-nav button:hover,
+    .backstage-footer button:hover,
+    .backstage-nav button.active {
+      background: #fff;
+      border-left-color: #1f8f52;
+      color: #10793f;
+      font-weight: 700;
+    }
+
+    .backstage-main {
+      min-width: 0;
+      padding: 44px 48px;
+      overflow: auto;
+      background: #f7f7f7;
+    }
+
+    .backstage-content {
+      max-width: 1200px;
+    }
+
+    .backstage-title {
+      margin: 0 0 28px;
+      font-size: 22px;
+      font-weight: 600;
+    }
+
+    .backstage-pills {
+      display: inline-flex;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .backstage-pill {
+      height: 34px;
+      padding: 0 16px;
+      border: 1px solid #bcc2ca;
+      border-radius: 999px;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .backstage-pill.active {
+      border-color: #10793f;
+      color: #fff;
+      background: #10793f;
+    }
+
+    .backstage-search {
+      width: min(470px, 40vw);
+      height: 34px;
+      float: right;
+      border: 1px solid #9ea6b2;
+      border-radius: 3px;
+      padding: 0 12px;
+      background: #fff;
+    }
+
+    .backstage-list-header,
+    .recent-file-row {
+      display: grid;
+      grid-template-columns: minmax(280px, 1fr) 240px;
+      gap: 24px;
+      align-items: center;
+    }
+
+    .backstage-list-header {
+      clear: both;
+      margin-top: 10px;
+      padding: 0 10px 8px;
+      color: #666;
+      border-bottom: 1px solid #d1d5db;
+    }
+
+    .recent-file-row {
+      width: 100%;
+      min-height: 56px;
+      border: 0;
+      border-bottom: 1px solid #d1d5db;
+      background: transparent;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .recent-file-row:hover {
+      background: #fff;
+    }
+
+    .recent-file-name {
+      display: block;
+      color: #2a2e35;
+      font-size: 14px;
+    }
+
+    .recent-file-path {
+      display: block;
+      margin-top: 3px;
+      color: #666;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .recent-file-date {
+      color: #555;
+      text-align: left;
+    }
+
+    .backstage-empty {
+      padding: 28px 10px;
+      color: #666;
+      border-bottom: 1px solid #d1d5db;
+    }
+
     .toolbar.ribbon-collapsed .ribbon-panel {
       display: none;
     }
@@ -284,6 +459,14 @@
 
     .ribbon-group.filter-ribbon-group {
       min-width: 354px;
+    }
+
+    body.tables-area-active .filter-ribbon-group {
+      display: none;
+    }
+
+    body.tables-area-active .docs-config-group {
+      display: none;
     }
 
     .ribbon-filter {
@@ -406,29 +589,43 @@
       padding: 3px 6px;
       border: 1px solid transparent;
       border-radius: 3px;
-      color: #111;
+      color: #27313d;
       background: transparent;
-      font-weight: 700;
+      font-weight: 400;
       line-height: 1.1;
       cursor: pointer;
       box-shadow: none;
     }
 
     .tool-button.icon-tool {
-      min-width: 68px;
-      min-height: 52px;
-      display: grid;
-      grid-template-rows: 28px auto;
-      place-items: center;
-      gap: 2px;
-      padding: 2px 6px 4px;
+      min-width: 86px;
+      min-height: 54px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 4px 7px;
+      font-size: 10.5px;
+      font-weight: 400;
+      line-height: 1.08;
+      text-align: left;
+      white-space: normal;
     }
 
     .tool-button.icon-tool img {
-      width: 28px;
-      height: 28px;
+      width: 42px;
+      height: 42px;
+      flex: 0 0 42px;
       object-fit: contain;
       pointer-events: none;
+    }
+
+    .tool-button.icon-tool span {
+      pointer-events: none;
+    }
+
+    .tool-button.icon-tool.wide-label {
+      min-width: 118px;
     }
 
     .tool-button:hover {
@@ -571,11 +768,11 @@
 
     .drawer-group {
       display: grid;
-      gap: 4px;
+      gap: 2px;
     }
 
     .drawer-group h2 {
-      margin: 8px 0 4px;
+      margin: 3px 0 2px;
       color: #cbd6e4;
       font-size: 11px;
       letter-spacing: .04em;
@@ -584,7 +781,7 @@
 
     .drawer-section-button {
       width: 100%;
-      margin: 8px 0 4px;
+      margin: 3px 0 2px;
       border: 0;
       border-radius: 4px;
       color: #cbd6e4;
@@ -602,6 +799,10 @@
     .drawer-section-button.active {
       color: #fff;
       background: rgba(255, 255, 255, .12);
+    }
+
+    .drawer-section-button.inactive {
+      cursor: default;
     }
 
     .drawer-item {
@@ -1215,19 +1416,41 @@
       z-index: 4;
     }
 
+    .sheet.show-cdhu-table .official-table-view::before {
+      content: "";
+      display: block;
+      position: sticky;
+      top: 0;
+      width: 1525px;
+      height: 198px;
+      margin-bottom: -198px;
+      background: #fff;
+      pointer-events: none;
+      z-index: 20;
+    }
+
     .sheet.show-cdhu-table .official-table-view .official-head {
       display: grid;
+      position: sticky;
+      top: 24px;
       width: 1500px;
       height: 96px;
       margin: 24px 0 0 25px;
       min-height: 0;
       margin-bottom: 0;
+      background: #fff;
+      z-index: 31;
     }
 
     .sheet.show-cdhu-table .official-table-view .official-metrics {
       display: grid;
+      position: sticky;
+      top: 120px;
+      width: 1500px;
       height: 24px;
-      margin-bottom: 0;
+      margin: 0 0 0 25px;
+      background: #fff;
+      z-index: 31;
     }
 
     .sheet.show-cdhu-table .official-grid {
@@ -1257,6 +1480,14 @@
       width: 985px;
     }
 
+    .sheet.show-cdhu-table.hide-helpers .official-table-view::before {
+      width: 1010px;
+    }
+
+    .sheet.show-cdhu-table.hide-helpers .official-table-view .official-metrics {
+      width: 985px;
+    }
+
     .sheet.show-cdhu-table.hide-helpers .official-grid {
       grid-template-columns: 25px 985px;
       width: 1010px;
@@ -1268,6 +1499,11 @@
       table-layout: fixed;
       border: 0;
       font-size: 12px;
+    }
+
+    .sheet.show-cdhu-table .official-table {
+      border: 2px solid #1a1a1a;
+      box-shadow: inset 0 0 0 1px #1a1a1a;
     }
 
     .official-table th,
@@ -1287,6 +1523,13 @@
 
     .sheet.show-cdhu-table .official-table thead {
       display: table-header-group;
+    }
+
+    .sheet.show-cdhu-table .official-table th {
+      position: sticky;
+      top: 144px;
+      z-index: 32;
+      border-color: #1a1a1a;
     }
 
     .official-table th {
@@ -1320,7 +1563,8 @@
     }
 
     .official-table input,
-    .official-table select {
+    .official-table select,
+    .official-table textarea {
       width: 100%;
       height: 100%;
       border: 0;
@@ -1333,7 +1577,8 @@
     }
 
     .official-table input:focus,
-    .official-table select:focus {
+    .official-table select:focus,
+    .official-table textarea:focus {
       outline: 2px solid var(--green);
       outline-offset: -2px;
       background: #fff;
@@ -1341,6 +1586,30 @@
 
     .official-table .numeric input {
       text-align: right;
+    }
+
+    .official-table .center input,
+    .official-table .center select,
+    .official-table .center textarea {
+      text-align: center;
+    }
+
+    .official-table .description-cell {
+      height: auto;
+      white-space: normal;
+      vertical-align: top;
+    }
+
+    .official-table .description-control {
+      display: block;
+      min-height: 24px;
+      height: 24px;
+      resize: none;
+      overflow: hidden;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      line-height: 16px;
+      padding: 3px 5px;
     }
 
     .official-table .formula-cell {
@@ -1691,7 +1960,8 @@
     }
 
     .budget tbody tr {
-      height: 24px;
+      height: auto;
+      min-height: 24px;
     }
 
     .budget th {
@@ -1765,13 +2035,88 @@
       text-align: right;
     }
 
+    .budget tbody td[data-col="4"] .cell-control,
+    .budget tbody td[data-col="8"] .cell-control,
+    .budget tbody td[data-col="9"] .cell-control {
+      text-align: center;
+    }
+
+    .budget tbody td[data-col="5"] .cell-control,
+    .budget tbody td[data-col="6"] .cell-control,
+    .budget tbody td[data-col="7"] .cell-control {
+      text-align: right;
+    }
+
     .item-number {
       text-align: center;
       font-weight: 700;
     }
 
+    .item-cell {
+      display: grid;
+      grid-template-columns: 18px 1fr;
+      align-items: center;
+      gap: 2px;
+      padding: 0 3px;
+    }
+
+    .item-cell .item-number {
+      padding: 0;
+    }
+
+    .item-cell.no-toggle {
+      display: block;
+      padding: 0;
+    }
+
+    .macro-toggle {
+      width: 16px;
+      height: 16px;
+      border: 1px solid #4f5d70;
+      border-radius: 2px;
+      background: #fff;
+      color: #1d2c3d;
+      font-size: 12px;
+      font-weight: 900;
+      line-height: 14px;
+      text-align: center;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    tr.macro-collapsed-child {
+      display: none;
+    }
+
     .service-text {
       font-weight: 700;
+    }
+
+    .subtotal-service {
+      text-align: right;
+      padding-right: 8px;
+    }
+
+    .subtotal-label {
+      color: #000;
+      font-weight: 900;
+      text-align: right;
+      padding-right: 8px;
+    }
+
+    textarea.service-text {
+      display: block;
+      min-height: 24px;
+      height: 24px;
+      resize: none;
+      overflow: hidden;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      font: inherit;
+      font-weight: 700;
+      line-height: 18px;
+      padding-top: 3px;
+      padding-bottom: 3px;
     }
 
     tr.level-section td { background: var(--blue-soft); font-weight: 800; }
@@ -1825,22 +2170,148 @@
       font-weight: 800;
     }
 
+    tr.level-service .service-not-found {
+      color: #c00000;
+      font-weight: 400;
+    }
+
+    .budget tr.level-section td[data-col="3"] .service-text,
+    .budget tr.level-macro td[data-col="3"] .service-text,
+    .budget tr.level-item td[data-col="3"] .service-text,
+    .budget tr.level-subitem td[data-col="3"] .service-text,
+    .budget tr.level-subtotal td[data-col="3"] .service-text,
+    .budget tr.level-sectionTotal td[data-col="3"] .service-text {
+      color: #000;
+      font-weight: 900;
+    }
+
+    .budget tr.level-section td[data-col="2"],
+    .budget tr.level-macro td[data-col="2"],
+    .budget tr.level-item td[data-col="2"],
+    .budget tr.level-subitem td[data-col="2"],
+    .budget tr.level-subtotal td[data-col="2"],
+    .budget tr.level-sectionTotal td[data-col="2"] {
+      border-right-color: transparent;
+    }
+
+    .budget tr.level-section td[data-col="3"],
+    .budget tr.level-section td[data-col="4"],
+    .budget tr.level-section td[data-col="5"],
+    .budget tr.level-section td[data-col="6"],
+    .budget tr.level-macro td[data-col="3"],
+    .budget tr.level-macro td[data-col="4"],
+    .budget tr.level-macro td[data-col="5"],
+    .budget tr.level-macro td[data-col="6"],
+    .budget tr.level-item td[data-col="3"],
+    .budget tr.level-item td[data-col="4"],
+    .budget tr.level-item td[data-col="5"],
+    .budget tr.level-item td[data-col="6"],
+    .budget tr.level-subitem td[data-col="3"],
+    .budget tr.level-subitem td[data-col="4"],
+    .budget tr.level-subitem td[data-col="5"],
+    .budget tr.level-subitem td[data-col="6"],
+    .budget tr.level-subtotal td[data-col="3"],
+    .budget tr.level-subtotal td[data-col="4"],
+    .budget tr.level-subtotal td[data-col="5"],
+    .budget tr.level-subtotal td[data-col="6"],
+    .budget tr.level-sectionTotal td[data-col="3"],
+    .budget tr.level-sectionTotal td[data-col="4"],
+    .budget tr.level-sectionTotal td[data-col="5"],
+    .budget tr.level-sectionTotal td[data-col="6"] {
+      border-left-color: transparent;
+      border-right-color: transparent;
+    }
+
+    .budget tr.level-section td[data-col="7"],
+    .budget tr.level-macro td[data-col="7"],
+    .budget tr.level-item td[data-col="7"],
+    .budget tr.level-subitem td[data-col="7"],
+    .budget tr.level-subtotal td[data-col="7"],
+    .budget tr.level-sectionTotal td[data-col="7"] {
+      border-left-color: transparent;
+    }
+
+    .budget tr.level-section td[data-col="2"],
+    .budget tr.level-section td[data-col="3"],
+    .budget tr.level-section td[data-col="4"],
+    .budget tr.level-section td[data-col="5"],
+    .budget tr.level-section td[data-col="6"],
+    .budget tr.level-section td[data-col="7"] {
+      border-left-color: var(--blue-soft);
+      border-right-color: var(--blue-soft);
+    }
+
+    .budget tr.level-macro td[data-col="2"],
+    .budget tr.level-macro td[data-col="3"],
+    .budget tr.level-macro td[data-col="4"],
+    .budget tr.level-macro td[data-col="5"],
+    .budget tr.level-macro td[data-col="6"],
+    .budget tr.level-macro td[data-col="7"] {
+      border-left-color: var(--gray-strong);
+      border-right-color: var(--gray-strong);
+    }
+
+    .budget tr.level-item td[data-col="2"],
+    .budget tr.level-item td[data-col="3"],
+    .budget tr.level-item td[data-col="4"],
+    .budget tr.level-item td[data-col="5"],
+    .budget tr.level-item td[data-col="6"],
+    .budget tr.level-item td[data-col="7"] {
+      border-left-color: var(--gray-soft);
+      border-right-color: var(--gray-soft);
+    }
+
+    .budget tr.level-subitem td[data-col="2"],
+    .budget tr.level-subitem td[data-col="3"],
+    .budget tr.level-subitem td[data-col="4"],
+    .budget tr.level-subitem td[data-col="5"],
+    .budget tr.level-subitem td[data-col="6"],
+    .budget tr.level-subitem td[data-col="7"] {
+      border-left-color: #f1f1f1;
+      border-right-color: #f1f1f1;
+    }
+
+    .budget tr.level-subtotal td[data-col="2"],
+    .budget tr.level-subtotal td[data-col="3"],
+    .budget tr.level-subtotal td[data-col="4"],
+    .budget tr.level-subtotal td[data-col="5"],
+    .budget tr.level-subtotal td[data-col="6"],
+    .budget tr.level-subtotal td[data-col="7"] {
+      border-left-color: var(--subtotal);
+      border-right-color: var(--subtotal);
+    }
+
+    .budget tr.level-sectionTotal td[data-col="2"],
+    .budget tr.level-sectionTotal td[data-col="3"],
+    .budget tr.level-sectionTotal td[data-col="4"],
+    .budget tr.level-sectionTotal td[data-col="5"],
+    .budget tr.level-sectionTotal td[data-col="6"],
+    .budget tr.level-sectionTotal td[data-col="7"] {
+      border-left-color: var(--section-total);
+      border-right-color: var(--section-total);
+    }
+
+    .budget tr.level-section td[data-col="2"],
+    .budget tr.level-macro td[data-col="2"],
+    .budget tr.level-item td[data-col="2"],
+    .budget tr.level-subitem td[data-col="2"],
+    .budget tr.level-subtotal td[data-col="2"],
+    .budget tr.level-sectionTotal td[data-col="2"] {
+      border-left-color: var(--line);
+    }
+
+    .budget tr.level-section td[data-col="7"],
+    .budget tr.level-macro td[data-col="7"],
+    .budget tr.level-item td[data-col="7"],
+    .budget tr.level-subitem td[data-col="7"],
+    .budget tr.level-subtotal td[data-col="7"],
+    .budget tr.level-sectionTotal td[data-col="7"] {
+      border-right-color: var(--line);
+    }
+
     tr.selected td {
-      box-shadow: inset 0 2px 0 var(--green), inset 0 -2px 0 var(--green);
-    }
-
-    tr.selected td:first-child {
-      box-shadow:
-        inset 2px 0 0 var(--green),
-        inset 0 2px 0 var(--green),
-        inset 0 -2px 0 var(--green);
-    }
-
-    tr.selected td:last-child {
-      box-shadow:
-        inset -2px 0 0 var(--green),
-        inset 0 2px 0 var(--green),
-        inset 0 -2px 0 var(--green);
+      background: #e5f4ec !important;
+      box-shadow: none;
     }
 
     .budget td.cell-selected,
@@ -1858,15 +2329,13 @@
     }
 
     .budget td.find-match {
-      outline: 2px solid #4aa3ff;
-      outline-offset: -2px;
-      background: #d9ecff !important;
+      outline: 0;
+      background: #e5f2ff !important;
     }
 
     .budget td.find-current {
-      outline: 3px solid #1673d1;
-      outline-offset: -3px;
-      background: #c4e1ff !important;
+      outline: 0;
+      background: #d5eaff !important;
     }
 
     tr.fill-target td {
@@ -2128,6 +2597,76 @@
       background: #eaf2ff;
     }
 
+    .confirm-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 140;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: rgba(15, 23, 42, .44);
+    }
+
+    .confirm-overlay[hidden] {
+      display: none;
+    }
+
+    .confirm-dialog {
+      width: min(440px, calc(100vw - 40px));
+      padding: 22px 24px 20px;
+      border: 1px solid #b9c1cc;
+      border-radius: 6px;
+      background: #fff;
+      box-shadow: 0 22px 60px rgba(15, 23, 42, .32);
+    }
+
+    .confirm-dialog h2 {
+      margin: 0 0 10px;
+      color: #152033;
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .confirm-dialog p {
+      margin: 0;
+      color: #334155;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .confirm-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .confirm-actions button {
+      height: 34px;
+      min-width: 96px;
+      border: 1px solid #aeb7c4;
+      border-radius: 4px;
+      padding: 0 16px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .confirm-secondary {
+      color: #152033;
+      background: #fff;
+    }
+
+    .confirm-primary {
+      color: #fff;
+      border-color: #245c9c;
+      background: #1f6fb2;
+    }
+
+    .confirm-actions button:focus-visible {
+      outline: 2px solid #1f8f52;
+      outline-offset: 2px;
+    }
+
     .toast {
       position: fixed;
       right: 20px;
@@ -2162,7 +2701,7 @@
           <button class="quick-button history-button" data-action="redo" title="Refazer">↷</button>
           <button class="quick-button" id="ribbonToggle" data-action="toggle-ribbon" title="Recolher faixa" aria-label="Recolher faixa">⌃</button>
         </div>
-        <div class="file-title">Mensurium - Planilha Orçamentária</div>
+        <div class="file-title">Novo</div>
         <div class="find-controls">
           <input class="top-search" id="globalSearch" placeholder="Localizar" aria-label="Localizar na planilha">
           <button class="find-button" data-action="find-next">Próximo</button>
@@ -2170,35 +2709,33 @@
         </div>
       </div>
       <nav class="ribbon-tabs" id="ribbonTabs" aria-label="Abas de ferramentas">
+        <button class="ribbon-tab" data-ribbon-tab="file">Arquivo</button>
         <button class="ribbon-tab active" data-ribbon-tab="home">Página Inicial</button>
-        <button class="ribbon-tab" data-ribbon-tab="print-export">Importações e Exportações</button>
         <button class="ribbon-tab" data-ribbon-tab="help">Ajuda</button>
       </nav>
+      <input id="importJsonFile" type="file" accept="application/json,.json" hidden>
       <section class="ribbon-panel active" data-ribbon-panel="home" aria-label="Comandos da aba Página Inicial">
         <div class="ribbon-group">
           <div class="ribbon-actions">
-            <button class="tool-button icon-tool" data-action="copy"><img src="assets/icon-copiar.png" alt="">Copiar</button>
-            <button class="tool-button icon-tool" data-action="paste"><img src="assets/icon-colar.png" alt="">Colar</button>
+            <button class="tool-button icon-tool" data-action="copy"><img src="assets/icon-copiar.png" alt=""><span>Copiar</span></button>
+            <button class="tool-button icon-tool" data-action="paste"><img src="assets/icon-colar.png" alt=""><span>Colar</span></button>
           </div>
           <div class="ribbon-label">Área de Transferência</div>
         </div>
         <div class="ribbon-group">
           <div class="ribbon-actions">
-            <button class="tool-button icon-tool" data-action="undo"><img src="assets/icon-desfazer.png" alt="">Desfazer</button>
-            <button class="tool-button icon-tool" data-action="redo"><img src="assets/icon-refazer.png" alt="">Refazer</button>
-          </div>
-          <div class="ribbon-label">Edição</div>
-        </div>
-        <div class="ribbon-group">
-          <div class="ribbon-actions">
-            <button class="tool-button icon-tool" data-action="insert-below"><img src="assets/icon-inserir-linha.png" alt="">Inserir<br>Linha</button>
-            <button class="tool-button icon-tool" data-action="delete"><img src="assets/icon-excluir-linha.png" alt="">Excluir<br>Linha</button>
+            <button class="tool-button icon-tool" data-action="insert-below"><img src="assets/icon-inserir-linha.png" alt=""><span>Inserir Linha</span></button>
+            <button class="tool-button icon-tool" data-action="delete"><img src="assets/icon-excluir-linha.png" alt=""><span>Excluir Linha</span></button>
+            <button class="tool-button icon-tool wide-label" id="macroToggleAllButton" data-action="toggle-all-macros">
+              <img src="assets/recolher-macroitens.png" alt="">
+              <span>Recolher Macroitens</span>
+            </button>
           </div>
           <div class="ribbon-label">Linhas</div>
         </div>
         <div class="ribbon-group">
           <div class="ribbon-actions">
-            <button class="tool-button icon-tool" data-action="toggle-aux-columns"><img src="assets/icon-ocultar-exibir.png" alt="">Ocultar / Exibir<br>auxiliares</button>
+            <button class="tool-button icon-tool wide-label" data-action="toggle-aux-columns"><img src="assets/icon-ocultar-exibir.png" alt=""><span>Ocultar / Exibir auxiliares</span></button>
           </div>
           <div class="ribbon-label">Colunas</div>
         </div>
@@ -2226,29 +2763,32 @@
           </div>
           <div class="ribbon-label">Opções da Planilha</div>
         </div>
-      </section>
-      <section class="ribbon-panel" data-ribbon-panel="print-export" aria-label="Comandos de importação e exportação">
-        <div class="ribbon-group">
+        <div class="ribbon-group docs-config-group">
           <div class="ribbon-actions">
-            <button class="tool-button" type="button">Configurar<br>Página</button>
-            <button class="tool-button" type="button">Visualizar<br>Impressão</button>
+            <button class="tool-button icon-tool wide-label" data-action="open-sources-config">
+              <img src="assets/icon-fontes-oficiais.png" alt="">
+              <span>Fontes Oficiais</span>
+            </button>
           </div>
-          <div class="ribbon-label">Impressão</div>
-        </div>
-        <div class="ribbon-group">
-          <div class="ribbon-actions">
-            <button class="tool-button" data-action="save">Salvar</button>
-            <button class="tool-button" data-action="export-json">Exportar<br>JSON</button>
-            <button class="tool-button" data-action="import-json">Importar<br>JSON</button>
-            <input id="importJsonFile" type="file" accept="application/json,.json" hidden>
-          </div>
-          <div class="ribbon-label">Dados</div>
+          <div class="ribbon-label">Configurações</div>
         </div>
       </section>
       <section class="ribbon-panel" data-ribbon-panel="help" aria-label="Ajuda">
         <div class="ribbon-group">
           <div class="ribbon-actions">
-            <button class="tool-button" type="button">Ajuda</button>
+            <button class="tool-button icon-tool wide-label" data-action="open-tutorial" type="button">
+              <img src="assets/icon-tutorial.png" alt="">
+              <span>Tutorial</span>
+            </button>
+          </div>
+          <div class="ribbon-label">Tutorial</div>
+        </div>
+        <div class="ribbon-group">
+          <div class="ribbon-actions">
+            <button class="tool-button icon-tool wide-label" type="button">
+              <img src="assets/icon-ajuda-suporte.png" alt="">
+              <span>Ajuda e Suporte</span>
+            </button>
           </div>
           <div class="ribbon-label">Suporte</div>
         </div>
@@ -2258,6 +2798,44 @@
         <input class="formula-input" id="formulaInput" aria-label="Conteúdo da célula selecionada">
       </div>
     </header>
+
+    <div class="backstage" id="fileBackstage" hidden aria-label="Área de arquivo">
+      <aside class="backstage-sidebar" aria-label="Menu Arquivo">
+        <button class="backstage-back" data-action="close-backstage" aria-label="Voltar para a planilha">‹</button>
+        <nav class="backstage-nav">
+          <button class="active" data-action="backstage-home">Página Inicial</button>
+          <button data-action="new-project">Novo</button>
+          <button data-action="import-json">Abrir</button>
+          <button data-action="backstage-info">Informações</button>
+          <button data-action="save">Salvar</button>
+          <button data-action="save-as">Salvar Como</button>
+          <button data-action="backstage-print">Imprimir</button>
+          <button data-action="backstage-share">Compartilhar</button>
+          <button data-action="export-json">Exportar</button>
+          <button data-action="close-backstage">Fechar</button>
+        </nav>
+        <div class="backstage-footer">
+          <button data-action="backstage-account">Conta</button>
+          <button data-action="backstage-options">Opções</button>
+        </div>
+      </aside>
+      <main class="backstage-main">
+        <section class="backstage-content">
+          <h1 class="backstage-title">Arquivos</h1>
+          <div class="backstage-pills" aria-label="Listas de arquivos">
+            <button class="backstage-pill active" data-action="set-backstage-list" data-backstage-list="recent">Recente</button>
+            <button class="backstage-pill" data-action="set-backstage-list" data-backstage-list="favorites">Favoritos</button>
+            <button class="backstage-pill" data-action="set-backstage-list" data-backstage-list="shared">Compartilhado Comigo</button>
+          </div>
+          <input class="backstage-search" id="backstageSearch" placeholder="Procurar um arquivo" aria-label="Procurar um arquivo">
+          <div class="backstage-list-header">
+            <span>Nome</span>
+            <span>Data da modificação</span>
+          </div>
+          <div class="backstage-recent-list" id="backstageRecentList"></div>
+        </section>
+      </main>
+    </div>
 
     <aside class="side-drawer" id="sideDrawer" aria-label="Menu principal">
       <div class="drawer-title">
@@ -2271,14 +2849,16 @@
         <button class="drawer-section-button" data-action="switch-tab-area" data-tab-area="tables">Tabelas Oficiais / Fontes</button>
       </section>
       <section class="drawer-group">
-        <h2>Relatórios</h2>
+        <button class="drawer-section-button inactive" type="button">Banco de Dados de Fontes</button>
       </section>
       <section class="drawer-group">
-        <h2>Exportações</h2>
+        <button class="drawer-section-button inactive" type="button">Medições</button>
       </section>
       <section class="drawer-group">
-        <h2>Configurações</h2>
-        <button class="drawer-item" data-action="open-sources-config">Fontes Oficiais</button>
+        <button class="drawer-section-button inactive" type="button">Diário de Obra</button>
+      </section>
+      <section class="drawer-group">
+        <button class="drawer-section-button inactive" type="button">Relatórios</button>
       </section>
     </aside>
 
@@ -2480,10 +3060,10 @@
                     <th class="nowrap">Material</th>
                     <th class="nowrap">Mão de Obra</th>
                     <th class="nowrap">Custo Total</th>
-                    <th class="cdhu-helper-cell">Custo Total&nbsp;+<br>BDI 20,47%</th>
-                    <th class="cdhu-helper-cell">Custo Total&nbsp;+<br>BDI 11,11%</th>
+                    <th class="cdhu-helper-cell" id="cdhuBdiNormalHeader">Custo Total&nbsp;+<br>BDI 20,47%</th>
+                    <th class="cdhu-helper-cell" id="cdhuBdiDifHeader">Custo Total&nbsp;+<br>BDI 11,11%</th>
                     <th class="cdhu-helper-cell">Custo Total&nbsp;+<br>BDI + Reajuste</th>
-                    <th class="cdhu-helper-cell">BDI<br>11,11%?</th>
+                    <th class="cdhu-helper-cell" id="cdhuBdiSelectHeader">BDI<br>DIF</th>
                     <th>Custo Total<br>Final com BDI</th>
                     <th class="cdhu-helper-cell">Usado na<br>Planilha?</th>
                   </tr>
@@ -2552,6 +3132,17 @@
     <button data-action="delete">Excluir linha</button>
   </div>
 
+  <div class="confirm-overlay" id="confirmOverlay" hidden>
+    <div class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+      <h2 id="confirmTitle">Confirmar</h2>
+      <p id="confirmMessage"></p>
+      <div class="confirm-actions">
+        <button class="confirm-secondary" type="button" data-confirm="cancel">Cancelar</button>
+        <button class="confirm-primary" type="button" data-confirm="ok">OK</button>
+      </div>
+    </div>
+  </div>
+
   <div class="toast" id="toast"></div>
   <div class="fill-handle" id="fillHandle" title="Arrastar para preencher"></div>
 
@@ -2561,6 +3152,7 @@
     const AUTOSAVE_KEY = "mensurium.autosave";
     const GRID_LINES_KEY = "mensurium.gridLines";
     const SOURCES_KEY = "mensurium.officialSources";
+    const RECENT_FILES_KEY = "mensurium.recentFiles";
     const CDHU_ROW_COUNT = 120;
     const CDHU_META_DEFAULTS = {
       version: "194",
@@ -2688,10 +3280,15 @@
     let lastNativePasteAt = 0;
     let autosaveEnabled = localStorage.getItem(AUTOSAVE_KEY) !== "off";
     let officialSources = loadOfficialSources();
+    let recentFiles = loadRecentFiles();
+    let backstageListMode = "recent";
     let cdhuMeta = { ...CDHU_META_DEFAULTS };
     let activeTabArea = "documents";
     let activeTabLabel = "PO";
     let bottomSplitterDrag = null;
+    let collapsedMacroIds = new Set();
+    let currentProjectFileHandle = null;
+    let currentProjectFileName = "";
 
     const DOCUMENT_TABS = [
       "PO",
@@ -2748,6 +3345,12 @@
     const sourcesPanel = document.getElementById("sourcesPanel");
     const sourcesList = document.getElementById("sourcesList");
     const newSourceName = document.getElementById("newSourceName");
+    const fileBackstage = document.getElementById("fileBackstage");
+    const backstageRecentList = document.getElementById("backstageRecentList");
+    const backstageSearch = document.getElementById("backstageSearch");
+    const confirmOverlay = document.getElementById("confirmOverlay");
+    const confirmTitle = document.getElementById("confirmTitle");
+    const confirmMessage = document.getElementById("confirmMessage");
 
     function createRow(level = "") {
       return {
@@ -2777,6 +3380,12 @@
 
     function normalizeSourceName(value) {
       return String(value || "").trim().replace(/\s+/g, " ").toUpperCase();
+    }
+
+    function normalizeSourceSelection(value) {
+      const source = normalizeSourceName(value);
+      if (!source) return "";
+      return officialSources.includes(source) ? source : "";
     }
 
     function uniqueSources(values) {
@@ -2827,6 +3436,172 @@
       requestAnimationFrame(() => {
         tabStrip.querySelector(".tab.active")?.scrollIntoView({ block: "nearest", inline: "nearest" });
       });
+    }
+
+    function loadRecentFiles() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(RECENT_FILES_KEY) || "[]");
+        if (Array.isArray(saved)) return saved.filter((item) => item && item.name).slice(0, 7);
+      } catch {
+        // Ignore unreadable recent file data.
+      }
+      return [];
+    }
+
+    function saveRecentFiles() {
+      localStorage.setItem(RECENT_FILES_KEY, JSON.stringify(recentFiles.slice(0, 7)));
+    }
+
+    function updateFileTitle() {
+      const title = document.querySelector(".file-title");
+      if (!title) return;
+      title.textContent = currentProjectFileName || "Novo";
+    }
+
+    function showConfirmDialog({
+      title = "Confirmar",
+      message = "",
+      confirmLabel = "OK",
+      cancelLabel = "Cancelar"
+    } = {}) {
+      const okButton = confirmOverlay.querySelector("[data-confirm='ok']");
+      const cancelButton = confirmOverlay.querySelector("[data-confirm='cancel']");
+      confirmTitle.textContent = title;
+      confirmMessage.textContent = message;
+      okButton.textContent = confirmLabel;
+      cancelButton.textContent = cancelLabel;
+      confirmOverlay.hidden = false;
+      okButton.focus();
+
+      return new Promise((resolve) => {
+        const cleanup = (result) => {
+          confirmOverlay.hidden = true;
+          okButton.removeEventListener("click", onOk);
+          cancelButton.removeEventListener("click", onCancel);
+          confirmOverlay.removeEventListener("click", onBackdrop);
+          document.removeEventListener("keydown", onKey);
+          resolve(result);
+        };
+        const onOk = () => cleanup(true);
+        const onCancel = () => cleanup(false);
+        const onBackdrop = (event) => {
+          if (event.target === confirmOverlay) cleanup(false);
+        };
+        const onKey = (event) => {
+          if (event.key === "Escape") cleanup(false);
+        };
+
+        okButton.addEventListener("click", onOk);
+        cancelButton.addEventListener("click", onCancel);
+        confirmOverlay.addEventListener("click", onBackdrop);
+        document.addEventListener("keydown", onKey);
+      });
+    }
+
+    function rememberRecentFile(info = {}) {
+      const name = String(info.name || currentProjectFileName || "").trim();
+      if (!name) return;
+
+      const location = String(info.location || "Arquivo JSON local").trim();
+      const key = `${name}|${location}`.toLowerCase();
+      recentFiles = [
+        {
+          id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
+          name,
+          location,
+          modifiedAt: new Date().toISOString()
+        },
+        ...recentFiles.filter((item) => `${item.name}|${item.location}`.toLowerCase() !== key)
+      ].slice(0, 7);
+      saveRecentFiles();
+      updateFileTitle();
+      renderBackstageFiles();
+    }
+
+    function formatRecentDate(value) {
+      if (!value) return "";
+      try {
+        return new Date(value).toLocaleString("pt-BR", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit"
+        });
+      } catch {
+        return "";
+      }
+    }
+
+    function setBackstageList(mode = "recent") {
+      backstageListMode = mode;
+      fileBackstage.querySelectorAll("[data-backstage-list]").forEach((button) => {
+        button.classList.toggle("active", button.dataset.backstageList === backstageListMode);
+      });
+      renderBackstageFiles();
+    }
+
+    function setBackstageNavActive(action = "backstage-home") {
+      fileBackstage.querySelectorAll(".backstage-nav button").forEach((button) => {
+        button.classList.toggle("active", button.dataset.action === action);
+      });
+    }
+
+    function renderBackstageFiles() {
+      if (!backstageRecentList) return;
+      const search = backstageSearch?.value.trim().toLowerCase() || "";
+      const labelByMode = {
+        recent: "Nenhum arquivo recente ainda.",
+        favorites: "Favoritos ficam aqui quando essa etapa estiver pronta.",
+        shared: "Arquivos compartilhados ficam aqui quando essa etapa estiver pronta."
+      };
+      const files = backstageListMode === "recent"
+        ? recentFiles.filter((item) => {
+          const haystack = `${item.name} ${item.location}`.toLowerCase();
+          return !search || haystack.includes(search);
+        })
+        : [];
+
+      if (!files.length) {
+        backstageRecentList.innerHTML = `<div class="backstage-empty">${labelByMode[backstageListMode] || "Nada para mostrar."}</div>`;
+        return;
+      }
+
+      backstageRecentList.innerHTML = files.map((item) => `
+        <button class="recent-file-row" data-action="open-recent-file" data-recent-id="${escapeHtml(item.id)}">
+          <span>
+            <strong class="recent-file-name">${escapeHtml(item.name)}</strong>
+            <span class="recent-file-path">${escapeHtml(item.location || "Arquivo JSON local")}</span>
+          </span>
+          <span class="recent-file-date">${escapeHtml(formatRecentDate(item.modifiedAt))}</span>
+        </button>
+      `).join("");
+    }
+
+    function openBackstage() {
+      document.body.classList.add("backstage-open");
+      fileBackstage.hidden = false;
+      sideDrawer.classList.remove("open");
+      setBackstageNavActive("backstage-home");
+      setBackstageList("recent");
+      backstageSearch?.focus();
+    }
+
+    function closeBackstage() {
+      document.body.classList.remove("backstage-open");
+      fileBackstage.hidden = true;
+      switchRibbonTab("home");
+    }
+
+    function showBackstagePlaceholder(actionName, message) {
+      openBackstage();
+      setBackstageNavActive(actionName);
+      showToast(message);
+    }
+
+    function openRecentFile() {
+      showToast("Escolha novamente o JSON para o navegador liberar o acesso.");
+      triggerImportJson();
     }
 
     function renderOfficialTable() {
@@ -2944,43 +3719,29 @@
       const costTotal = parseNumber(row.costTotal);
       const bdiNormal = parsePercent(document.getElementById("bdiNormal").value);
       const bdiDif = parsePercent(document.getElementById("bdiDif").value);
-      const totalMode = document.getElementById("totalMode").value;
       const bdi11Selected = isCdhuBdiSelected(row);
       const reajusteEnabled = false;
       const reajusteFactor = 0;
 
       let costBdi11 = "-";
-      if (hasCost && bdi11Selected && totalMode === "comBdi") {
+      if (hasCost && bdi11Selected) {
         costBdi11 = costTotal * (1 + bdiDif);
       }
 
       let costBdi20 = "";
       if (hasCost && costTotal !== 0) {
-        if (totalMode === "comBdi") {
-          costBdi20 = costBdi11 !== "-" ? "-" : costTotal * (1 + bdiNormal);
-        } else if (totalMode === "comBdiSeparado") {
-          costBdi20 = "-";
-        }
+        costBdi20 = costBdi11 !== "-" ? "-" : costTotal * (1 + bdiNormal);
       }
 
       let costReajuste = "";
       if (hasCost && reajusteEnabled && reajusteFactor) {
-        if (totalMode === "comBdiSeparado") {
-          costReajuste = costTotal * reajusteFactor;
-        } else if (totalMode === "comBdi") {
-          costReajuste = (costBdi11 !== "-" ? costBdi11 : costBdi20) * reajusteFactor;
-        }
+        costReajuste = (costBdi11 !== "-" ? costBdi11 : costBdi20) * reajusteFactor;
       }
 
       let finalCost = "";
       if (hasCost) {
-        if (!reajusteEnabled && !bdi11Selected && totalMode === "comBdi") finalCost = costBdi20;
-        else if (reajusteEnabled && !bdi11Selected && totalMode === "comBdi") finalCost = costReajuste;
-        else if (!reajusteEnabled && bdi11Selected && totalMode === "comBdi") finalCost = costBdi11;
-        else if (reajusteEnabled && bdi11Selected && totalMode === "comBdi") finalCost = costReajuste;
-        else if (!reajusteEnabled && !bdi11Selected && totalMode === "comBdiSeparado") finalCost = costTotal;
-        else if (reajusteEnabled && !bdi11Selected && totalMode === "comBdiSeparado") finalCost = costReajuste;
-        else finalCost = "ERRO";
+        if (reajusteEnabled) finalCost = costReajuste;
+        else finalCost = bdi11Selected ? costBdi11 : costBdi20;
       }
 
       return {
@@ -2992,19 +3753,32 @@
       };
     }
 
+    function updateCdhuBdiHeaders() {
+      const normal = percentText(document.getElementById("bdiNormal").value, "20,47%");
+      const diferenciado = percentText(document.getElementById("bdiDif").value, "11,11%");
+      const normalHeader = document.getElementById("cdhuBdiNormalHeader");
+      const difHeader = document.getElementById("cdhuBdiDifHeader");
+      const selectHeader = document.getElementById("cdhuBdiSelectHeader");
+      if (normalHeader) normalHeader.innerHTML = `Custo Total&nbsp;+<br>BDI ${escapeHtml(normal)}`;
+      if (difHeader) difHeader.innerHTML = `Custo Total&nbsp;+<br>BDI ${escapeHtml(diferenciado)}`;
+      if (selectHeader) selectHeader.innerHTML = "BDI<br>DIF";
+    }
+
     function renderCdhuTable() {
       officialLogoText.textContent = "CDHU";
       officialMainTitle.textContent = "BOLETIM REFERENCIAL DE CUSTOS - TABELA DE SERVIÇOS";
       applyCdhuMetaToHeader();
+      updateCdhuBdiHeaders();
       document.getElementById("lineCount").textContent = cdhuRows.length;
 
       officialTableBody.innerHTML = cdhuRows.map((row, index) => {
         const calc = calculateCdhuRow(row);
+        const descriptionHeight = estimateOfficialDescriptionHeight(row.description);
         return `
           <tr data-cdhu-index="${index}" class="${index === selectedCdhuIndex ? "selected" : ""}">
             <td data-col="0"><input class="cell-control" data-cdhu-field="reference" value="${escapeHtml(row.reference)}"></td>
-            <td data-col="1"><input class="cell-control" data-cdhu-field="description" value="${escapeHtml(row.description)}"></td>
-            <td data-col="2"><input class="cell-control" data-cdhu-field="unit" value="${escapeHtml(row.unit)}"></td>
+            <td data-col="1" class="description-cell"><textarea class="cell-control description-control" data-cdhu-field="description" style="height:${descriptionHeight}px" spellcheck="false">${escapeHtml(row.description)}</textarea></td>
+            <td data-col="2" class="center"><input class="cell-control" data-cdhu-field="unit" value="${escapeHtml(row.unit)}"></td>
             <td data-col="3" class="numeric"><input class="cell-control" data-cdhu-field="material" value="${escapeHtml(row.material)}"></td>
             <td data-col="4" class="numeric"><input class="cell-control" data-cdhu-field="labor" value="${escapeHtml(row.labor)}"></td>
             <td data-col="5" class="numeric"><input class="cell-control" data-cdhu-field="costTotal" value="${escapeHtml(row.costTotal)}"></td>
@@ -3029,6 +3803,7 @@
     function updateWorkspaceArea() {
       const isOfficialTable = activeTabArea === "tables";
       const isCdhuTable = isOfficialTable && activeTabLabel === "CDHU";
+      document.body.classList.toggle("tables-area-active", isOfficialTable);
       sheet.classList.toggle("show-official-table", isOfficialTable);
       sheet.classList.toggle("show-cdhu-table", isCdhuTable);
       officialTableView.hidden = !isCdhuTable;
@@ -3117,6 +3892,24 @@
       return parseNumber(value) / 100;
     }
 
+    function percentText(value, fallback = "0%") {
+      const raw = String(value || "").trim();
+      if (!raw) return fallback;
+      const withoutPercent = raw.replace(/%/g, "").trim();
+      return `${withoutPercent || "0"}%`;
+    }
+
+    function normalizePercentInput(control) {
+      if (!control) return;
+      const next = percentText(control.value);
+      if (control.value !== next) control.value = next;
+    }
+
+    function normalizeProjectPercentControls() {
+      normalizePercentInput(document.getElementById("bdiNormal"));
+      normalizePercentInput(document.getElementById("bdiDif"));
+    }
+
     function updateFonteFilterOptions() {
       const select = document.getElementById("filterFonte");
       const current = select.value;
@@ -3139,6 +3932,14 @@
       }).join("");
     }
 
+    function sourceOptionMarkup(current) {
+      const source = normalizeSourceSelection(current);
+      return `<option value="" ${source ? "" : "selected"}></option>` + officialSources.map((value) => {
+        const selected = value === source ? "selected" : "";
+        return `<option value="${escapeHtml(value)}" ${selected}>${escapeHtml(value)}</option>`;
+      }).join("");
+    }
+
     function classForLevel(level) {
       return level ? `level-${level}` : "level-blank";
     }
@@ -3151,22 +3952,135 @@
       return ["subtotal", "sectionTotal"].includes(row.level);
     }
 
+    function readFinalNumber(value) {
+      if (value === "" || value === "-" || value === "ERRO") return 0;
+      return parseNumber(value);
+    }
+
+    function totalModeIsSeparatedBdi() {
+      return document.getElementById("totalMode").value === "comBdiSeparado";
+    }
+
+    function officialPriceForBudget(item) {
+      const basePrice = readFinalNumber(item.precoSemBdi ?? item.custoTotal ?? item.preco);
+      const finalPrice = readFinalNumber(item.precoComBdi ?? item.precoFinalComBdi ?? item.preco);
+      return totalModeIsSeparatedBdi()
+        ? (basePrice || finalPrice)
+        : (finalPrice || basePrice);
+    }
+
+    function findCdhuItem(code) {
+      const wanted = normalizeComparable(code);
+      if (!wanted) return null;
+      const row = cdhuRows.find((item) => normalizeComparable(item.reference) === wanted);
+      if (!row) return null;
+      const calc = calculateCdhuRow(row);
+      const basePrice = parseNumber(row.costTotal);
+      const finalPrice = readFinalNumber(calc.finalCost) || basePrice;
+      return {
+        descricao: row.description || "",
+        unidade: row.unit || "",
+        precoSemBdi: basePrice,
+        precoComBdi: finalPrice,
+        bdi: isCdhuBdiSelected(row) ? "sim" : ""
+      };
+    }
+
+    function findOfficialItem(source, code) {
+      const normalizedSource = normalizeSourceName(source);
+      const normalizedCode = String(code || "").trim();
+      if (!normalizedSource || !normalizedCode) return null;
+
+      if (normalizedSource === "CDHU") {
+        const cdhuItem = findCdhuItem(normalizedCode);
+        if (cdhuItem) return cdhuItem;
+      }
+
+      return catalog[`${normalizedSource}|${normalizedCode}`] || null;
+    }
+
     function applyCatalog(row) {
       if (!isService(row)) return;
       const source = String(row.source || "").trim().toUpperCase();
       const code = String(row.code || "").trim();
-      const found = catalog[`${source}|${code}`];
+      const found = findOfficialItem(source, code);
 
       if (found) {
         row.service = found.descricao;
         row.unit = found.unidade;
-        row.price = String(found.preco).replace(".", ",");
+        row.price = formatCurrency(officialPriceForBudget(found));
+        row.bdi = found.bdi || "";
         row.check = "";
-      } else if (source || code) {
+      } else if (source && code) {
         row.check = "Código/fonte não encontrado";
       } else {
         row.check = "";
       }
+    }
+
+    function isNotFoundCheck(row) {
+      return normalizeComparable(row?.check).includes("codigo/fonte nao encontrado");
+    }
+
+    function mergeCheckMessage(current, message) {
+      if (!current) return message;
+      const normalizedCurrent = normalizeComparable(current);
+      const normalizedMessage = normalizeComparable(message);
+      if (normalizedCurrent.includes(normalizedMessage)) return current;
+      return `${current}; ${message}`;
+    }
+
+    function applyDuplicateChecks() {
+      const groupedReferences = new Map();
+      let currentMacro = "";
+      let currentItem = "";
+      let currentSubitem = "";
+
+      rows.forEach((row, index) => {
+        if (row.level === "macro") {
+          currentMacro = row.item || `macro-${index}`;
+          currentItem = "";
+          currentSubitem = "";
+          return;
+        }
+
+        if (row.level === "item") {
+          currentItem = row.item || `item-${index}`;
+          currentSubitem = "";
+          return;
+        }
+
+        if (row.level === "subitem") {
+          currentSubitem = row.item || `subitem-${index}`;
+          return;
+        }
+
+        if (!isService(row)) return;
+
+        const code = normalizeComparable(row.code);
+        const source = normalizeComparable(row.source);
+        if (!code || !source) return;
+
+        const scope = currentSubitem
+          ? `subitem:${currentSubitem}`
+          : currentItem
+            ? `item:${currentItem}`
+            : currentMacro
+              ? `macro:${currentMacro}`
+              : "global";
+        const groupKey = `${scope}|${source}|${code}`;
+
+        if (!groupedReferences.has(groupKey)) groupedReferences.set(groupKey, []);
+        groupedReferences.get(groupKey).push(index);
+      });
+
+      groupedReferences.forEach((indices) => {
+        if (indices.length < 2) return;
+        const message = `Código/fonte duplicado (${indices.length}x no grupo)`;
+        indices.forEach((index) => {
+          rows[index].check = mergeCheckMessage(rows[index].check, message);
+        });
+      });
     }
 
     function renumberRows() {
@@ -3228,9 +4142,15 @@
       let valorBdiDif = 0;
       let runningSubtotal = 0;
       let runningSection = 0;
+      let currentMacroItem = "";
 
       rows.forEach((row) => {
         applyCatalog(row);
+
+        if (row.level === "macro") {
+          currentMacroItem = row.item || "";
+          runningSubtotal = 0;
+        }
 
         if (isService(row)) {
           const quantity = parseNumber(row.quantity);
@@ -3251,6 +4171,7 @@
         }
 
         if (row.level === "subtotal") {
+          row.service = currentMacroItem ? `SUBTOTAL (${currentMacroItem})` : "SUBTOTAL";
           row.total = runningSubtotal;
           runningSubtotal = 0;
         }
@@ -3262,9 +4183,11 @@
 
       });
 
-      const totalComBdi = totalSemBdi * (1 + bdiNormal);
-      const diferencaBdi = totalComBdiSeparado - totalComBdi;
+      applyDuplicateChecks();
+
       const totalMode = document.getElementById("totalMode").value;
+      const totalComBdi = totalMode === "comBdi" ? totalSemBdi : totalComBdiSeparado;
+      const diferencaBdi = totalComBdiSeparado - totalComBdi;
 
       document.getElementById("totalSemBdi").textContent = formatCurrency(totalSemBdi);
       document.getElementById("bottomTotalComBdi").textContent = formatCurrency(totalComBdi);
@@ -3337,6 +4260,25 @@
       return matchIndex === currentFindIndex ? " find-current" : " find-match";
     }
 
+    function toggleMacro(index) {
+      const row = rows[index];
+      if (!row || row.level !== "macro") return;
+      selectedIndex = index;
+      if (collapsedMacroIds.has(row.id)) collapsedMacroIds.delete(row.id);
+      else collapsedMacroIds.add(row.id);
+      render();
+    }
+
+    function toggleAllMacros() {
+      const macroRows = rows.filter((row) => row.level === "macro");
+      const shouldCollapse = macroRows.some((row) => !collapsedMacroIds.has(row.id));
+      collapsedMacroIds = shouldCollapse
+        ? new Set(macroRows.map((row) => row.id))
+        : new Set();
+      render();
+      showToast(shouldCollapse ? "Macroitens recolhidos." : "Macroitens expandidos.");
+    }
+
     function locateNext() {
       updateFindResults();
       if (!findResults.length) {
@@ -3383,34 +4325,58 @@
       return number === cdhuTableHeaderRowNumber ? cdhuTableHeaderHeight : defaultSheetRowHeight;
     }
 
+    function cdhuFrozenRowsHeight() {
+      let total = 0;
+      for (let number = 1; number <= cdhuTableHeaderRowNumber; number += 1) {
+        total += cdhuGridRowHeight(number);
+      }
+      return total;
+    }
+
     function renderCdhuRowRuler() {
       const scrollTop = officialTableView.scrollTop || 0;
       const viewportHeight = rowRuler.clientHeight || 800;
+      const frozenHeight = cdhuFrozenRowsHeight();
+      const scrollViewportHeight = Math.max(0, viewportHeight - frozenHeight);
       const rowCount = Math.max(
         CDHU_ROW_COUNT + cdhuTableHeaderRowNumber + 30,
         Math.ceil((scrollTop + viewportHeight + 600) / defaultSheetRowHeight)
       );
-      const rowsHtml = [];
-      const gridRowsHtml = [];
+      const frozenRowsHtml = [];
+      const scrollRowsHtml = [];
+      const frozenGridRowsHtml = [];
+      const scrollGridRowsHtml = [];
 
-      for (let number = 1; number <= rowCount; number += 1) {
+      for (let number = 1; number <= cdhuTableHeaderRowNumber; number += 1) {
         const height = cdhuGridRowHeight(number);
-        rowsHtml.push(rowRulerCell(number, height));
-        gridRowsHtml.push(sheetGridRow(height));
+        frozenRowsHtml.push(rowRulerCell(number, height));
+        frozenGridRowsHtml.push(sheetGridRow(height));
+      }
+
+      for (let number = cdhuTableHeaderRowNumber + 1; number <= rowCount; number += 1) {
+        const height = cdhuGridRowHeight(number);
+        scrollRowsHtml.push(rowRulerCell(number, height));
+        scrollGridRowsHtml.push(sheetGridRow(height));
       }
 
       rowRuler.innerHTML = `
-        <div class="row-ruler-scroll" style="top:0;height:${viewportHeight}px">
+        <div class="row-ruler-frozen" style="top:0;height:${frozenHeight}px">
+          <div class="row-ruler-list" aria-hidden="true">${frozenRowsHtml.join("")}</div>
+        </div>
+        <div class="row-ruler-scroll" style="top:${frozenHeight}px;height:${scrollViewportHeight}px">
           <div class="row-ruler-scroll-inner" style="transform:translateY(${-scrollTop}px)">
-            <div class="row-ruler-list" aria-hidden="true">${rowsHtml.join("")}</div>
+            <div class="row-ruler-list" aria-hidden="true">${scrollRowsHtml.join("")}</div>
           </div>
         </div>
       `;
 
       sheetGridRows.innerHTML = `
-        <div class="sheet-grid-row-scroll" style="top:0;height:${viewportHeight}px">
+        <div class="sheet-grid-row-frozen" style="top:0;height:${frozenHeight}px">
+          <div class="sheet-grid-row-list" aria-hidden="true">${frozenGridRowsHtml.join("")}</div>
+        </div>
+        <div class="sheet-grid-row-scroll" style="top:${frozenHeight}px;height:${scrollViewportHeight}px">
           <div class="sheet-grid-row-scroll-inner" style="transform:translateY(${-scrollTop}px)">
-            <div class="sheet-grid-row-list" aria-hidden="true">${gridRowsHtml.join("")}</div>
+            <div class="sheet-grid-row-list" aria-hidden="true">${scrollGridRowsHtml.join("")}</div>
           </div>
         </div>
       `;
@@ -3579,6 +4545,36 @@
       document.body.style.cursor = "";
     }
 
+    function estimateServiceHeight(value) {
+      const text = String(value || "");
+      const explicitLines = Math.max(1, text.split(/\r?\n/).length);
+      const estimatedLines = Math.max(1, Math.ceil(text.length / 62));
+      return Math.min(150, Math.max(24, Math.max(explicitLines, estimatedLines) * 18 + 6));
+    }
+
+    function estimateOfficialDescriptionHeight(value) {
+      const text = String(value || "");
+      const explicitLines = Math.max(1, text.split(/\r?\n/).length);
+      const estimatedLines = Math.max(1, Math.ceil(text.length / 70));
+      return Math.min(130, Math.max(24, Math.max(explicitLines, estimatedLines) * 17 + 7));
+    }
+
+    function resizeServiceControl(control) {
+      if (!control || !control.classList?.contains("service-text")) return;
+      control.style.height = "24px";
+      control.style.height = `${Math.min(150, Math.max(24, control.scrollHeight))}px`;
+    }
+
+    function resizeOfficialDescriptionControl(control) {
+      if (!control || !control.classList?.contains("description-control")) return;
+      control.style.height = "24px";
+      control.style.height = `${Math.min(130, Math.max(24, control.scrollHeight))}px`;
+    }
+
+    function resizeVisibleServiceControls() {
+      body.querySelectorAll("textarea.service-text").forEach(resizeServiceControl);
+    }
+
     function render() {
       recalc();
       renderTabStrip();
@@ -3594,13 +4590,33 @@
       sheetGridLines.classList.toggle("hide-helpers", hideHelpers);
       frozenPane.classList.toggle("hide-level", hideLevel);
       frozenPane.classList.toggle("hide-helpers", hideHelpers);
+      const macroToggleAllButton = document.getElementById("macroToggleAllButton");
+      const macroRows = rows.filter((row) => row.level === "macro");
+      const allMacrosCollapsed = macroRows.length > 0 && macroRows.every((row) => collapsedMacroIds.has(row.id));
+      if (macroToggleAllButton) {
+        const macroToggleLabel = allMacrosCollapsed ? "Expandir Macroitens" : "Recolher Macroitens";
+        macroToggleAllButton.innerHTML = `<img src="assets/recolher-macroitens.png" alt=""><span>${macroToggleLabel}</span>`;
+      }
 
       const fonteFilter = document.getElementById("filterFonte").value.trim().toUpperCase();
       const codeFilter = document.getElementById("filterCodigo").value.trim().toUpperCase();
       updateFonteFilterOptions();
       updateFindResults();
+      const collapsedHiddenRows = new Set();
+      let insideCollapsedMacro = false;
+      rows.forEach((row, index) => {
+        if (row.level === "section" || row.level === "sectionTotal") {
+          insideCollapsedMacro = false;
+        }
+        if (row.level === "macro") {
+          insideCollapsedMacro = collapsedMacroIds.has(row.id);
+          return;
+        }
+        if (insideCollapsedMacro) collapsedHiddenRows.add(index);
+      });
 
-      const visibleRowCount = rows.filter((row) => {
+      const visibleRowCount = rows.filter((row, index) => {
+        if (collapsedHiddenRows.has(index)) return false;
         const technicalValue = isService(row);
         const hiddenByFonte = technicalValue && fonteFilter && String(row.source || "").toUpperCase() !== fonteFilter;
         const hiddenByCode = technicalValue && codeFilter && !String(row.code || "").toUpperCase().includes(codeFilter);
@@ -3611,37 +4627,50 @@
         const technicalValue = isService(row);
         const hiddenByFonte = technicalValue && fonteFilter && String(row.source || "").toUpperCase() !== fonteFilter;
         const hiddenByCode = technicalValue && codeFilter && !String(row.code || "").toUpperCase().includes(codeFilter);
-        const display = hiddenByFonte || hiddenByCode ? "display:none" : "";
+        const hiddenByMacro = collapsedHiddenRows.has(index);
+        const display = hiddenByFonte || hiddenByCode || hiddenByMacro ? "display:none" : "";
         const selected = index === selectedIndex ? "selected" : "";
-        const serviceClass = (!row.level || (isService(row) && !row.service)) ? "service-placeholder" : "";
-        const serviceValue = row.service || (row.level ? (isService(row) ? "Digite - CÓDIGO e FONTE" : "Digite a Descrição") : "Selecione o Nível");
+        const lookupError = technicalValue && (row.code || row.source) && isNotFoundCheck(row);
+        const serviceClass = lookupError ? "service-not-found" : ((!row.level || (isService(row) && !row.service)) ? "service-placeholder" : "");
+        const isSubtotalRow = row.level === "subtotal";
+        const subtotalServiceClass = isSubtotalRow ? " subtotal-service" : "";
+        const serviceValue = isSubtotalRow ? "" : (lookupError ? "Código/fonte não encontrado" : (row.service || (row.level ? (isService(row) ? "Digite - CÓDIGO e FONTE" : "Digite a Descrição") : "Selecione o Nível")));
+        const serviceHeight = estimateServiceHeight(serviceValue);
         const readonly = isCalculated(row) ? "readonly" : "";
         const serviceReadonly = !row.level || isService(row) || isCalculated(row) ? "readonly" : "";
         const unitValue = technicalValue ? row.unit : "";
         const quantityValue = technicalValue ? row.quantity : "";
-        const priceValue = technicalValue ? row.price : "";
-        const totalValue = technicalValue ? formatCurrency(row.total) : "";
+        const priceValue = isSubtotalRow ? row.service : (technicalValue && String(row.price || "").trim() !== "" ? formatCurrency(parseNumber(row.price)) : "");
+        const priceField = technicalValue ? 'data-field="price"' : "";
+        const priceClass = isSubtotalRow ? " subtotal-label" : "";
+        const totalValue = (technicalValue || isCalculated(row)) ? formatCurrency(row.total) : "";
         const codeValue = technicalValue ? row.code : "";
-        const sourceValue = technicalValue ? row.source : "";
+        const sourceValue = technicalValue ? normalizeSourceSelection(row.source) : "";
+        const macroCollapsed = row.level === "macro" && collapsedMacroIds.has(row.id);
+        const macroToggle = row.level === "macro"
+          ? `<button type="button" class="macro-toggle" data-macro-index="${index}" title="${macroCollapsed ? "Expandir macroitem" : "Recolher macroitem"}">${macroCollapsed ? "+" : "-"}</button>`
+          : "";
+        const itemCellClass = row.level === "macro" ? "item-cell" : "item-cell no-toggle";
 
         return `
-          <tr class="${classForLevel(row.level)} ${selected}" data-index="${index}" style="${display}">
+          <tr class="${classForLevel(row.level)} ${selected} ${hiddenByMacro ? "macro-collapsed-child" : ""}" data-index="${index}" style="${display}">
             <td class="col-level${findClass(index, 0)}" data-col="0"><select class="cell-control" data-field="level">${optionMarkup(levelOptions, row.level)}</select></td>
             <td class="col-bdi${findClass(index, 1)}" data-col="1"><select class="cell-control" data-field="bdi">${optionMarkup(bdiOptions, row.bdi)}</select></td>
-            <td class="${findClass(index, 2)}" data-col="2"><input class="cell-control item-number" value="${row.item}" readonly></td>
-            <td class="${findClass(index, 3)}" data-col="3"><input class="cell-control service-text ${serviceClass}" data-field="service" value="${escapeHtml(serviceValue)}" ${serviceReadonly}></td>
+            <td class="${findClass(index, 2)}" data-col="2"><div class="${itemCellClass}">${macroToggle}<input class="cell-control item-number" value="${row.item}" readonly></div></td>
+            <td class="${findClass(index, 3)}" data-col="3"><textarea class="cell-control service-text ${serviceClass}${subtotalServiceClass}" data-field="service" style="height:${serviceHeight}px" spellcheck="false" ${serviceReadonly}>${escapeHtml(serviceValue)}</textarea></td>
             <td class="${findClass(index, 4)}" data-col="4"><input class="cell-control" data-field="unit" value="${escapeHtml(unitValue)}" ${technicalValue ? "" : "readonly"}></td>
             <td class="${findClass(index, 5)}" data-col="5"><input class="cell-control number" data-field="quantity" value="${escapeHtml(quantityValue)}" ${technicalValue ? "" : "readonly"}></td>
-            <td class="${findClass(index, 6)}" data-col="6"><input class="cell-control money" data-field="price" value="${escapeHtml(priceValue)}" ${technicalValue ? "" : "readonly"}></td>
+            <td class="${findClass(index, 6)}" data-col="6"><input class="cell-control money${priceClass}" ${priceField} value="${escapeHtml(priceValue)}" ${technicalValue ? "" : "readonly"}></td>
             <td class="${findClass(index, 7)}" data-col="7"><input class="cell-control money" value="${totalValue}" readonly></td>
             <td class="${findClass(index, 8)}" data-col="8"><input class="cell-control" data-field="code" value="${escapeHtml(codeValue)}" ${technicalValue ? "" : "readonly"}></td>
-            <td class="${findClass(index, 9)}" data-col="9"><input class="cell-control" data-field="source" value="${escapeHtml(sourceValue)}" ${technicalValue ? "" : "readonly"}></td>
+            <td class="${findClass(index, 9)}" data-col="9"><select class="cell-control" data-field="source" ${technicalValue ? "" : "disabled"}>${sourceOptionMarkup(sourceValue)}</select></td>
             <td class="helper${findClass(index, 10)}" data-col="10"><input class="cell-control" data-field="observation" value="${escapeHtml(row.observation)}"></td>
             <td class="helper${findClass(index, 11)}" data-col="11"><input class="cell-control warn" value="${escapeHtml(row.check)}" readonly></td>
           </tr>
         `;
       }).join("");
       requestAnimationFrame(() => {
+        resizeVisibleServiceControls();
         renderRowRuler(visibleRowCount);
         syncHorizontalScrollbarSize();
       });
@@ -3685,6 +4714,7 @@
       selectedCdhuIndex = Math.min(snapshot.selectedCdhuIndex || 0, cdhuRows.length - 1);
       document.getElementById("bdiNormal").value = snapshot.bdiNormal || "20,47%";
       document.getElementById("bdiDif").value = snapshot.bdiDif || "11,11%";
+      normalizeProjectPercentControls();
       document.getElementById("totalMode").value = snapshot.totalMode || "comBdi";
       writeMeta(snapshot.meta || {});
       render();
@@ -3740,7 +4770,7 @@
     }
 
     function getActiveControl() {
-      return document.activeElement?.closest?.("#budgetBody [data-field], #officialTableBody input, #officialTableBody select") || null;
+      return document.activeElement?.closest?.("#budgetBody [data-field], #officialTableBody input, #officialTableBody select, #officialTableBody textarea") || null;
     }
 
     function getActiveSheetKind(control = getActiveControl()) {
@@ -3802,6 +4832,9 @@
       }
       if (field === "bdi") {
         return normalizeBdiValue(normalizeComparable(raw) === "sim" ? "sim" : raw);
+      }
+      if (field === "source") {
+        return normalizeSourceSelection(raw);
       }
       return String(value ?? "");
     }
@@ -4093,12 +5126,13 @@
       }
       const index = Number(rowEl.dataset.index);
       const field = control.dataset.field;
+      const nextValue = normalizeClipboardValue(field, value);
       pushUndo();
-      rows[index][field] = value;
-      control.value = value;
+      rows[index][field] = nextValue;
+      control.value = nextValue;
       updateFormulaBar(control);
       if (field === "level") {
-        if (!value || value === "service") {
+        if (!nextValue || nextValue === "service") {
           rows[index].service = "";
         } else if (!rows[index].service) {
           rows[index].service = "Digite a Descrição";
@@ -4386,18 +5420,141 @@
       render();
     }
 
-    function save(silent = false) {
-      const data = {
+    function projectSnapshot() {
+      return {
+        app: "Mensurium",
+        type: "mensurium-po",
+        version: 1,
+        exportedAt: new Date().toISOString(),
         rows,
         cdhuRows,
         cdhuMeta,
         meta: readMeta(),
         bdiNormal: document.getElementById("bdiNormal").value,
         bdiDif: document.getElementById("bdiDif").value,
-        totalMode: document.getElementById("totalMode").value
+        totalMode: document.getElementById("totalMode").value,
+        officialSources
       };
+    }
+
+    async function saveProjectFile(payload, silent = false) {
+      if (!currentProjectFileHandle?.createWritable) return false;
+      try {
+        const writable = await currentProjectFileHandle.createWritable();
+        await writable.write(payload);
+        await writable.close();
+        if (!silent) rememberRecentFile({ name: currentProjectFileName, location: "Arquivo salvo pelo navegador" });
+        if (!silent) showToast(`Salvo em ${currentProjectFileName || "arquivo JSON"}.`);
+        return true;
+      } catch (error) {
+        console.warn(error);
+        if (!silent) showToast("Nao foi possivel salvar no JSON aberto.");
+        return false;
+      }
+    }
+
+    async function requestProjectFileHandle() {
+      if (!window.showSaveFilePicker) return null;
+      try {
+        return await window.showSaveFilePicker({
+          suggestedName: currentProjectFileName || "mensurium-po.json",
+          types: [{
+            description: "Projeto Mensurium JSON",
+            accept: { "application/json": [".json"] }
+          }]
+        });
+      } catch (error) {
+        if (error?.name !== "AbortError") console.warn(error);
+        return null;
+      }
+    }
+
+    async function save(silent = false) {
+      const data = projectSnapshot();
+      const payload = JSON.stringify(data, null, 2);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      if (!silent) showToast("Mensurium salvo no navegador.");
+      if (currentProjectFileHandle) {
+        const saved = await saveProjectFile(payload, silent);
+        if (saved) return;
+      }
+      if (!silent) {
+        const handle = await requestProjectFileHandle();
+        if (handle) {
+          currentProjectFileHandle = handle;
+          currentProjectFileName = handle.name || "mensurium-po.json";
+          await saveProjectFile(payload, false);
+        } else {
+          showToast("Abra ou escolha um JSON para salvar o projeto.");
+        }
+      }
+    }
+
+    async function saveAs() {
+      const handle = await requestProjectFileHandle();
+      if (!handle) {
+        showToast("Salvar como cancelado.");
+        return;
+      }
+
+      currentProjectFileHandle = handle;
+      currentProjectFileName = handle.name || "mensurium-po.json";
+      const data = projectSnapshot();
+      const payload = JSON.stringify(data, null, 2);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      await saveProjectFile(payload, false);
+    }
+
+    function resetProjectState() {
+      rows = [];
+      cdhuRows = [];
+      seedRows();
+      seedCdhuRows();
+      cdhuMeta = normalizeCdhuMeta();
+      selectedIndex = 0;
+      selectedCdhuIndex = 0;
+      activeCell = null;
+      formulaTargetControl = null;
+      cellSelection = null;
+      selectingCells = false;
+      findResults = [];
+      currentFindIndex = -1;
+      undoStack = [];
+      redoStack = [];
+      clipboardRow = null;
+      internalClipboardText = "";
+      collapsedMacroIds.clear();
+      currentProjectFileHandle = null;
+      currentProjectFileName = "";
+      activeTabArea = "documents";
+      activeTabLabel = "PO";
+      updateFileTitle();
+      writeMeta({
+        obra: "",
+        local: "",
+        processo: "",
+        area: "",
+        dataObra: "março, 2026",
+        moeda: "REAL (BR)"
+      });
+      document.getElementById("bdiNormal").value = "20,47%";
+      document.getElementById("bdiDif").value = "11,11%";
+      document.getElementById("totalMode").value = "comBdi";
+      normalizeProjectPercentControls();
+    }
+
+    async function newProject() {
+      const confirmed = await showConfirmDialog({
+        title: "Novo projeto",
+        message: "Criar um novo projeto em branco? As alterações não salvas do projeto atual serão perdidas.",
+        confirmLabel: "Criar novo",
+        cancelLabel: "Cancelar"
+      });
+      if (!confirmed) return;
+      resetProjectState();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(projectSnapshot()));
+      closeBackstage();
+      render();
+      showToast("Novo projeto em branco criado.");
     }
 
     function updateAutosaveUi() {
@@ -4445,7 +5602,7 @@
     function scheduleAutoSave() {
       if (!autosaveEnabled) return;
       window.clearTimeout(scheduleAutoSave.timer);
-      scheduleAutoSave.timer = window.setTimeout(() => save(true), 700);
+      scheduleAutoSave.timer = window.setTimeout(() => save(true), 60000);
     }
 
     function applyZoom(value, persist = true) {
@@ -4490,6 +5647,7 @@
         writeMeta(data.meta || {});
         document.getElementById("bdiNormal").value = data.bdiNormal || "20,47%";
         document.getElementById("bdiDif").value = data.bdiDif || "11,11%";
+        normalizeProjectPercentControls();
         document.getElementById("totalMode").value = data.totalMode || "comBdi";
         if (!rows.length) seedRows();
         cdhuRows = normalizeCdhuRows(data.cdhuRows);
@@ -4521,20 +5679,7 @@
     }
 
     function exportJson() {
-      const payload = JSON.stringify({
-        app: "Mensurium",
-        type: "mensurium-po",
-        version: 1,
-        exportedAt: new Date().toISOString(),
-        meta: readMeta(),
-        rows,
-        cdhuRows,
-        cdhuMeta,
-        bdiNormal: document.getElementById("bdiNormal").value,
-        bdiDif: document.getElementById("bdiDif").value,
-        totalMode: document.getElementById("totalMode").value,
-        officialSources
-      }, null, 2);
+      const payload = JSON.stringify(projectSnapshot(), null, 2);
       const blob = new Blob([payload], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -4544,7 +5689,37 @@
       URL.revokeObjectURL(url);
     }
 
-    function triggerImportJson() {
+    async function triggerImportJson() {
+      if (window.showOpenFilePicker) {
+        try {
+          const [handle] = await window.showOpenFilePicker({
+            multiple: false,
+            types: [{
+              description: "Projeto Mensurium JSON",
+              accept: { "application/json": [".json"] }
+            }]
+          });
+          const file = await handle.getFile();
+          const data = JSON.parse(await file.text());
+          currentProjectFileHandle = handle;
+          currentProjectFileName = handle.name || file.name || "mensurium-po.json";
+          importMensuriumData(data);
+          rememberRecentFile({ name: currentProjectFileName, location: "Arquivo aberto pelo navegador" });
+          closeBackstage();
+          return;
+        } catch (error) {
+          if (error?.name === "AbortError") return;
+          currentProjectFileHandle = null;
+          currentProjectFileName = "";
+          updateFileTitle();
+          console.warn(error);
+          showToast("Nao foi possivel abrir esse JSON diretamente.");
+          return;
+        }
+      }
+      currentProjectFileHandle = null;
+      currentProjectFileName = "";
+      updateFileTitle();
       importJsonInput.value = "";
       importJsonInput.click();
     }
@@ -4583,6 +5758,7 @@
       writeMeta(data.meta || {});
       document.getElementById("bdiNormal").value = data.bdiNormal || "20,47%";
       document.getElementById("bdiDif").value = data.bdiDif || "11,11%";
+      normalizeProjectPercentControls();
       document.getElementById("totalMode").value = data.totalMode || "comBdi";
 
       if (Array.isArray(data.officialSources) && data.officialSources.length) {
@@ -4597,11 +5773,19 @@
 
     function handleImportJsonFile(file) {
       if (!file) return;
+      currentProjectFileHandle = null;
+      currentProjectFileName = file.name || "";
+      updateFileTitle();
       const reader = new FileReader();
       reader.addEventListener("load", () => {
         try {
           const data = JSON.parse(String(reader.result || ""));
           importMensuriumData(data);
+          rememberRecentFile({
+            name: currentProjectFileName || file.name,
+            location: file.webkitRelativePath || "Arquivo selecionado no navegador"
+          });
+          closeBackstage();
         } catch (error) {
           showToast("Não foi possível importar esse JSON.");
         }
@@ -4641,6 +5825,7 @@
           hideHelpers = next;
           render();
         },
+        "toggle-all-macros": toggleAllMacros,
         "toggle-menu": () => {
           sideDrawer.classList.toggle("open");
         },
@@ -4649,6 +5834,7 @@
         "toggle-autosave": toggleAutosave,
         "open-sources-config": openSourcesConfig,
         "close-sources-config": closeSourcesConfig,
+        "open-tutorial": () => showToast("Tutorial em preparação."),
         "add-source": addOfficialSource,
         "reset-sources": resetOfficialSources,
         "remove-source": () => removeOfficialSource(Number(target?.dataset?.sourceIndex ?? 0)),
@@ -4658,12 +5844,32 @@
         "zoom-in": () => changeZoom(5),
         "tabs-left": () => scrollTabStrip(-220),
         "tabs-right": () => scrollTabStrip(220),
+        "new-project": newProject,
         "save": save,
+        "save-as": saveAs,
         "export-json": exportJson,
-        "import-json": triggerImportJson
+        "import-json": triggerImportJson,
+        "open-backstage": openBackstage,
+        "close-backstage": closeBackstage,
+        "backstage-home": closeBackstage,
+        "set-backstage-list": () => setBackstageList(target?.dataset?.backstageList || "recent"),
+        "open-recent-file": openRecentFile,
+        "backstage-info": () => showBackstagePlaceholder("backstage-info", "Informações do projeto entram aqui depois."),
+        "backstage-print": () => showBackstagePlaceholder("backstage-print", "Impressão será configurada depois."),
+        "backstage-share": () => showBackstagePlaceholder("backstage-share", "Compartilhamento será configurado depois."),
+        "backstage-account": () => showBackstagePlaceholder("backstage-account", "Conta será configurada depois."),
+        "backstage-options": () => showBackstagePlaceholder("backstage-options", "Opções serão configuradas depois.")
       };
       actions[action]?.();
     }
+
+    body.addEventListener("click", (event) => {
+      const toggle = event.target.closest(".macro-toggle");
+      if (!toggle) return;
+      event.preventDefault();
+      event.stopPropagation();
+      toggleMacro(Number(toggle.dataset.macroIndex));
+    });
 
     function updateCdhuControlValue(control) {
       const rowEl = control.closest("[data-cdhu-index]");
@@ -4695,6 +5901,7 @@
       if (!control) return;
       pushUndo();
       if (updateCdhuControlValue(control)) scheduleAutoSave();
+      if (control.dataset.cdhuField === "description") resizeOfficialDescriptionControl(control);
     });
 
     officialTableBody.addEventListener("change", (event) => {
@@ -4744,14 +5951,20 @@
       if (!input || !rowEl) return;
       const index = Number(rowEl.dataset.index);
       const field = input.dataset.field;
+      const nextValue = normalizeClipboardValue(field, input.value);
+      if (nextValue !== input.value) input.value = nextValue;
       pushUndo();
-      rows[index][field] = input.value;
+      rows[index][field] = nextValue;
       if (activeCell && activeCell.row === index && activeCell.field === field) {
-        activeCell.value = input.value;
+        activeCell.value = nextValue;
       }
       updateFormulaBar(input);
+      if (field === "service") {
+        resizeServiceControl(input);
+        requestAnimationFrame(() => renderRowRuler(rows.length));
+      }
       if (field === "level") {
-        if (!input.value || input.value === "service") {
+        if (!nextValue || nextValue === "service") {
           rows[index].service = "";
         } else if (!rows[index].service) {
           rows[index].service = "Digite a Descrição";
@@ -4829,11 +6042,19 @@
     ribbonTabs.addEventListener("click", (event) => {
       const tab = event.target.closest("[data-ribbon-tab]");
       if (!tab) return;
+      if (tab.dataset.ribbonTab === "file") {
+        openBackstage();
+        return;
+      }
       switchRibbonTab(tab.dataset.ribbonTab);
     });
 
     importJsonInput.addEventListener("change", () => {
       handleImportJsonFile(importJsonInput.files?.[0]);
+    });
+
+    backstageSearch.addEventListener("input", () => {
+      renderBackstageFiles();
     });
 
     ribbonTabs.addEventListener("dblclick", () => {
@@ -5059,14 +6280,14 @@
 
     ["bdiNormal", "bdiDif", "totalMode"].forEach((id) => {
       const control = document.getElementById(id);
-      control.addEventListener("input", () => {
+      const handleProjectOptionChange = () => {
+        if (id !== "totalMode") normalizePercentInput(control);
         render();
         scheduleAutoSave();
-      });
-      control.addEventListener("change", () => {
-        render();
-        scheduleAutoSave();
-      });
+      };
+      control.addEventListener("input", handleProjectOptionChange);
+      control.addEventListener("change", handleProjectOptionChange);
+      control.addEventListener("blur", handleProjectOptionChange);
     });
 
     ["filterFonte", "filterCodigo"].forEach((id) => {
@@ -5099,6 +6320,8 @@
     updateAutosaveUi();
     updateRibbonToggleUi();
     load();
+    updateFileTitle();
+    renderBackstageFiles();
     render();
   </script>
 </body>
