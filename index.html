@@ -3046,7 +3046,7 @@
               <div class="agency" id="officialAgency">COMPANHIA DE DESENVOLVIMENTO HABITACIONAL E URBANO</div>
               <div class="agency">DO ESTADO DE SÃO PAULO</div>
               <div class="main" id="officialMainTitle">BOLETIM REFERENCIAL DE CUSTOS - TABELA DE SERVIÇOS</div>
-              <div class="mode">SEM DESONERAÇÃO</div>
+              <div class="mode" id="officialModeTitle">SEM DESONERAÇÃO</div>
             </div>
             <div class="official-meta">
               <label class="official-meta-row"><span>Versão</span><input class="official-field" id="officialVersion" data-cdhu-meta="version" value="194"></label>
@@ -3083,7 +3083,7 @@
                 <thead>
                   <tr>
                     <th class="nowrap">Referência</th>
-                    <th>Descrição</th>
+                    <th id="officialDescriptionHeader">Descrição</th>
                     <th class="nowrap">Unidade</th>
                     <th class="nowrap">Material</th>
                     <th class="nowrap">Mão de Obra</th>
@@ -3187,6 +3187,20 @@
       baseDate: "MAIO/2024",
       bdi: "0,00%",
       ls: "128,23%"
+    };
+    const OFFICIAL_TABLE_CONFIGS = {
+      "CDHU": {
+        logo: "CDHU",
+        mainTitle: "BOLETIM REFERENCIAL DE CUSTOS - TABELA DE SERVIÇOS",
+        modeTitle: "SEM DESONERAÇÃO",
+        descriptionHeader: "Descrição"
+      },
+      "CDHU INS": {
+        logo: "CDHU",
+        mainTitle: "BOLETIM REFERENCIAL DE CUSTOS",
+        modeTitle: "RELATÓRIO DE INSUMOS",
+        descriptionHeader: "Descrição do Insumo"
+      }
     };
     const DEFAULT_OFFICIAL_SOURCES = [
       "CDHU",
@@ -3312,6 +3326,8 @@
     let recentFiles = loadRecentFiles();
     let backstageListMode = "recent";
     let cdhuMeta = { ...CDHU_META_DEFAULTS };
+    let officialTableData = {};
+    let activeOfficialTableSource = "CDHU";
     let activeTabArea = "documents";
     let activeTabLabel = "PO";
     let bottomSplitterDrag = null;
@@ -3352,6 +3368,8 @@
     const officialRowRuler = document.getElementById("officialRowRuler");
     const officialLogoText = document.getElementById("officialLogoText");
     const officialMainTitle = document.getElementById("officialMainTitle");
+    const officialModeTitle = document.getElementById("officialModeTitle");
+    const officialDescriptionHeader = document.getElementById("officialDescriptionHeader");
     const officialVersion = document.getElementById("officialVersion");
     const officialBaseDate = document.getElementById("officialBaseDate");
     const officialBdi = document.getElementById("officialBdi");
@@ -3715,8 +3733,86 @@
       };
     }
 
+    function createOfficialTableRows() {
+      return Array.from({ length: CDHU_ROW_COUNT }, () => createCdhuRow());
+    }
+
+    function isOfficialEditableSource(source) {
+      return Object.prototype.hasOwnProperty.call(OFFICIAL_TABLE_CONFIGS, normalizeSourceName(source));
+    }
+
+    function normalizeOfficialEditableSource(source = activeTabLabel) {
+      const normalized = normalizeSourceName(source);
+      return isOfficialEditableSource(normalized) ? normalized : "CDHU";
+    }
+
+    function getOfficialTableConfig(source = activeTabLabel) {
+      return OFFICIAL_TABLE_CONFIGS[normalizeOfficialEditableSource(source)] || OFFICIAL_TABLE_CONFIGS.CDHU;
+    }
+
+    function ensureOfficialTableData(source = activeOfficialTableSource) {
+      const key = normalizeOfficialEditableSource(source);
+      if (!officialTableData[key]) {
+        officialTableData[key] = {
+          rows: createOfficialTableRows(),
+          meta: normalizeCdhuMeta()
+        };
+      }
+      return officialTableData[key];
+    }
+
+    function syncActiveOfficialTableData() {
+      const key = normalizeOfficialEditableSource(activeOfficialTableSource);
+      officialTableData[key] = {
+        rows: cdhuRows,
+        meta: cdhuMeta
+      };
+    }
+
+    function activateOfficialTableSource(source = activeTabLabel) {
+      syncActiveOfficialTableData();
+      activeOfficialTableSource = normalizeOfficialEditableSource(source);
+      const activeData = ensureOfficialTableData(activeOfficialTableSource);
+      cdhuRows = activeData.rows;
+      cdhuMeta = activeData.meta;
+      if (!cdhuRows.length) cdhuRows = activeData.rows = createOfficialTableRows();
+      selectedCdhuIndex = Math.min(selectedCdhuIndex, cdhuRows.length - 1);
+    }
+
+    function normalizeOfficialTableData(imported = {}, fallbackRows = [], fallbackMeta = {}) {
+      const normalized = {};
+      Object.entries(imported || {}).forEach(([source, value]) => {
+        const key = normalizeSourceName(source);
+        if (!isOfficialEditableSource(key)) return;
+        const rowsValue = Array.isArray(value) ? value : value?.rows;
+        const metaValue = Array.isArray(value) ? {} : value?.meta;
+        const normalizedRows = normalizeCdhuRows(rowsValue);
+        normalized[key] = {
+          rows: normalizedRows.length ? normalizedRows : createOfficialTableRows(),
+          meta: normalizeCdhuMeta(metaValue)
+        };
+      });
+
+      Object.keys(OFFICIAL_TABLE_CONFIGS).forEach((source) => {
+        if (!normalized[source]) {
+          normalized[source] = {
+            rows: source === "CDHU" && fallbackRows.length ? fallbackRows : createOfficialTableRows(),
+            meta: source === "CDHU" ? normalizeCdhuMeta(fallbackMeta) : normalizeCdhuMeta()
+          };
+        }
+      });
+
+      return normalized;
+    }
+
+    function serializeOfficialTableData() {
+      syncActiveOfficialTableData();
+      return JSON.parse(JSON.stringify(officialTableData));
+    }
+
     function seedCdhuRows() {
-      cdhuRows = Array.from({ length: CDHU_ROW_COUNT }, () => createCdhuRow());
+      cdhuRows = createOfficialTableRows();
+      ensureOfficialTableData(activeOfficialTableSource).rows = cdhuRows;
     }
 
     function normalizeCdhuRows(importedRows) {
@@ -3763,17 +3859,18 @@
       return formatCurrency(value);
     }
 
-    function cdhuUsedCount(reference) {
+    function cdhuUsedCount(reference, sourceName = activeOfficialTableSource) {
       const code = String(reference || "").trim().toUpperCase();
+      const source = normalizeOfficialEditableSource(sourceName);
       if (!code) return 0;
       return rows.filter((row) => (
         isService(row)
         && String(row.code || "").trim().toUpperCase() === code
-        && normalizeSourceName(row.source) === "CDHU"
+        && normalizeSourceName(row.source) === source
       )).length;
     }
 
-    function calculateCdhuRow(row) {
+    function calculateCdhuRow(row, sourceName = activeOfficialTableSource) {
       const hasCost = String(row.costTotal || "").trim() !== "";
       const costTotal = parseNumber(row.costTotal);
       const bdiNormal = parsePercent(document.getElementById("bdiNormal").value);
@@ -3808,7 +3905,7 @@
         costBdi11,
         costReajuste,
         finalCost,
-        used: cdhuUsedCount(row.reference)
+        used: cdhuUsedCount(row.reference, sourceName)
       };
     }
 
@@ -3824,14 +3921,18 @@
     }
 
     function renderCdhuTable() {
-      officialLogoText.textContent = "CDHU";
-      officialMainTitle.textContent = "BOLETIM REFERENCIAL DE CUSTOS - TABELA DE SERVIÇOS";
+      activateOfficialTableSource(activeTabLabel);
+      const config = getOfficialTableConfig(activeOfficialTableSource);
+      officialLogoText.textContent = config.logo;
+      officialMainTitle.textContent = config.mainTitle;
+      if (officialModeTitle) officialModeTitle.textContent = config.modeTitle;
+      if (officialDescriptionHeader) officialDescriptionHeader.textContent = config.descriptionHeader;
       applyCdhuMetaToHeader();
       updateCdhuBdiHeaders();
       document.getElementById("lineCount").textContent = cdhuRows.length;
 
       officialTableBody.innerHTML = cdhuRows.map((row, index) => {
-        const calc = calculateCdhuRow(row);
+        const calc = calculateCdhuRow(row, activeOfficialTableSource);
         const descriptionHeight = estimateOfficialDescriptionHeight(row.description);
         return `
           <tr data-cdhu-index="${index}" class="${index === selectedCdhuIndex ? "selected" : ""}">
@@ -3863,12 +3964,13 @@
       const isOfficialTable = activeTabArea === "tables";
       const isSurveyArea = activeTabArea === "surveys";
       const isGridOnlyArea = isOfficialTable || isSurveyArea;
-      const isCdhuTable = isOfficialTable && activeTabLabel === "CDHU";
+      const isCdhuTable = isOfficialTable && isOfficialEditableSource(activeTabLabel);
       document.body.classList.toggle("tables-area-active", isOfficialTable);
       sheet.classList.toggle("show-official-table", isGridOnlyArea);
       sheet.classList.toggle("show-cdhu-table", isCdhuTable);
       officialTableView.hidden = !isCdhuTable;
       if (isCdhuTable) {
+        activateOfficialTableSource(activeTabLabel);
         requestAnimationFrame(renderCdhuTable);
       } else if (isGridOnlyArea) {
         requestAnimationFrame(() => renderRowRuler(rows.length));
@@ -4030,12 +4132,14 @@
         : (finalPrice || basePrice);
     }
 
-    function findCdhuItem(code) {
+    function findCdhuItem(code, sourceName = "CDHU") {
       const wanted = normalizeComparable(code);
       if (!wanted) return null;
-      const row = cdhuRows.find((item) => normalizeComparable(item.reference) === wanted);
+      const source = normalizeOfficialEditableSource(sourceName);
+      const data = ensureOfficialTableData(source);
+      const row = data.rows.find((item) => normalizeComparable(item.reference) === wanted);
       if (!row) return null;
-      const calc = calculateCdhuRow(row);
+      const calc = calculateCdhuRow(row, source);
       const basePrice = parseNumber(row.costTotal);
       const finalPrice = readFinalNumber(calc.finalCost) || basePrice;
       return {
@@ -4052,8 +4156,8 @@
       const normalizedCode = String(code || "").trim();
       if (!normalizedSource || !normalizedCode) return null;
 
-      if (normalizedSource === "CDHU") {
-        const cdhuItem = findCdhuItem(normalizedCode);
+      if (isOfficialEditableSource(normalizedSource)) {
+        const cdhuItem = findCdhuItem(normalizedCode, normalizedSource);
         if (cdhuItem) return cdhuItem;
       }
 
@@ -4380,7 +4484,7 @@
     const defaultSheetRowHeight = 24;
 
     function isCdhuTableActive() {
-      return activeTabArea === "tables" && activeTabLabel === "CDHU";
+      return activeTabArea === "tables" && isOfficialEditableSource(activeTabLabel);
     }
 
     function cdhuGridRowHeight(number) {
@@ -4764,10 +4868,14 @@
     }
 
     function makeSnapshot() {
+      const officialTables = serializeOfficialTableData();
+      const legacyCdhu = officialTables.CDHU || { rows: cdhuRows, meta: cdhuMeta };
       return {
         rows: JSON.parse(JSON.stringify(rows)),
-        cdhuRows: JSON.parse(JSON.stringify(cdhuRows)),
-        cdhuMeta: { ...cdhuMeta },
+        cdhuRows: JSON.parse(JSON.stringify(legacyCdhu.rows || cdhuRows)),
+        cdhuMeta: { ...(legacyCdhu.meta || cdhuMeta) },
+        officialTableData: officialTables,
+        activeOfficialTableSource,
         selectedIndex,
         selectedCdhuIndex,
         bdiNormal: document.getElementById("bdiNormal").value,
@@ -4781,6 +4889,9 @@
       rows = JSON.parse(JSON.stringify(snapshot.rows));
       cdhuRows = JSON.parse(JSON.stringify(snapshot.cdhuRows || cdhuRows));
       cdhuMeta = { ...CDHU_META_DEFAULTS, ...(snapshot.cdhuMeta || cdhuMeta) };
+      officialTableData = normalizeOfficialTableData(snapshot.officialTableData, cdhuRows, cdhuMeta);
+      activeOfficialTableSource = snapshot.activeOfficialTableSource || activeOfficialTableSource;
+      activateOfficialTableSource(activeTabLabel);
       if (!rows.length) rows.push(createRow());
       if (!cdhuRows.length) cdhuRows.push(createCdhuRow());
       selectedIndex = Math.min(snapshot.selectedIndex || 0, rows.length - 1);
@@ -5582,14 +5693,18 @@
     }
 
     function projectSnapshot() {
+      const officialTables = serializeOfficialTableData();
+      const legacyCdhu = officialTables.CDHU || { rows: cdhuRows, meta: cdhuMeta };
       return {
         app: "Mensurium",
         type: "mensurium-po",
         version: 1,
         exportedAt: new Date().toISOString(),
         rows,
-        cdhuRows,
-        cdhuMeta,
+        cdhuRows: legacyCdhu.rows || cdhuRows,
+        cdhuMeta: legacyCdhu.meta || cdhuMeta,
+        officialTableData: officialTables,
+        activeOfficialTableSource,
         meta: readMeta(),
         bdiNormal: document.getElementById("bdiNormal").value,
         bdiDif: document.getElementById("bdiDif").value,
@@ -5668,9 +5783,12 @@
     function resetProjectState() {
       rows = [];
       cdhuRows = [];
+      officialTableData = {};
+      activeOfficialTableSource = "CDHU";
       seedRows();
       seedCdhuRows();
       cdhuMeta = normalizeCdhuMeta();
+      officialTableData = normalizeOfficialTableData({}, cdhuRows, cdhuMeta);
       selectedIndex = 0;
       selectedCdhuIndex = 0;
       activeCell = null;
@@ -5795,6 +5913,7 @@
         seedRows();
         seedCdhuRows();
         cdhuMeta = normalizeCdhuMeta();
+        officialTableData = normalizeOfficialTableData({}, cdhuRows, cdhuMeta);
         return;
       }
 
@@ -5820,10 +5939,13 @@
         cdhuRows = normalizeCdhuRows(data.cdhuRows);
         if (!cdhuRows.length) seedCdhuRows();
         cdhuMeta = normalizeCdhuMeta(data.cdhuMeta);
+        officialTableData = normalizeOfficialTableData(data.officialTableData, cdhuRows, cdhuMeta);
+        activateOfficialTableSource(activeTabLabel);
       } catch {
         seedRows();
         seedCdhuRows();
         cdhuMeta = normalizeCdhuMeta();
+        officialTableData = normalizeOfficialTableData({}, cdhuRows, cdhuMeta);
       }
     }
 
@@ -5918,6 +6040,8 @@
       cdhuRows = normalizeCdhuRows(data.cdhuRows);
       if (!cdhuRows.length) seedCdhuRows();
       cdhuMeta = normalizeCdhuMeta(data.cdhuMeta);
+      officialTableData = normalizeOfficialTableData(data.officialTableData, cdhuRows, cdhuMeta);
+      activateOfficialTableSource(activeTabLabel);
       selectedIndex = 0;
       activeCell = null;
       cellSelection = null;
